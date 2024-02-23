@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Collapsible Sections</title>
+    <link rel="stylesheet" type="text/css" href="./src/main.css">
+</head>
+
+<body>
+
+    <div class="collapsible">
+        <button class="collapsible-btn">Walkthrough Configuration <span class="arrow">&#9660;</span>
+            <hr>
+        </button>
+
+        <div class="content">
+
+            <div class="row">
+                <div class="col-md-12">
+                    <form action="index.html" method="post" id="topForm">
+                        <h1> </h1>
+
+                        <fieldset>
+
+                            <!-- <legend><span class="number">1</span> Your Basic Info</legend> -->
+
+                            <label for="name">Name:</label>
+                            <input type="text" id="name" name="name">
+
+
+                            <label for="description">Description:</label>
+                            <textarea id="description" name="description"></textarea>
+
+                        </fieldset>
+
+                        <button class="submitBtn" type="submit">Create Walkthrough</button>
+
+                    </form>
+                    <div action="index.html" id="walkThroughIfo">
+                        <label for="name">Name:</label>
+                        <div class="Description" id="waltTitle">
+
+                        </div>
+                        <label for="description">Description:</label>
+                        <div class="Description">
+                            <div class="mdDiv" id="walkDesc">
+                            </div>
+                        </div>
+                    
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="collapsible">
+        <button class="collapsible-btn">Add Steps <span class="arrow">&#9660;</span>
+            <hr>
+        </button>
+
+        <div class="content">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="controllBtn" id="controllBtn">
+                        <button class="ctnBtnIcn">◀</button>
+                        <button class="ctnBtnIcn">◼</button>
+                        <button class="ctnBtnIcn">▶</button>
+                    </div>
+                    <div id="allStepsDiv">
+                        
+                        <div id="accordion" class="perStepsDiv">
+                            <div class="step">
+                                <button class="step-title">Test<i class="fas fa-chevron-down"></i></button>
+                                <div class="step-content ">
+                                <label class="desLable" for="description">Description:</label>
+                                    <div class="Description">
+                                    <div class="mdDiv">
+                                    Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been
+                                        the industry's standard
+                                        dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type
+                                        specimen
+                                        book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially
+                                        unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and
+                                        more
+                                        recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        
+                        
+                        </div>
+
+                        
+                    </div>
+                    <div class="addStepDiv">
+                        <button class="addFirstBtn" id="addFirstStepBtn">Add First Step </button>
+                        <button class="submitBtn endTour addStepBtn" type="submit">End Tour</button>
+                        <form action="index.html" method="post" id="bottomForm">
+                            <fieldset>
+                                <label for="description">Description:</label>
+                                <textarea id="description" name="description"></textarea>
+
+                            </fieldset>
+
+                            <button class="submitBtn addStepBtn" type="submit">Create Walkthrough</button>
+
+                        </form>
+                        
+                    </div>
+                    
+                </div>
+            </div>
+            
+        </div>
+        
+    </div>
+
+
+    <script src="./src/script.js"></script>
+    <!-- <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            var collapsibleBtns = document.querySelectorAll(".collapsible-btn");
+
+            collapsibleBtns.forEach(function (btn) {
+                btn.addEventListener("click", function () {
+                    var content = this.nextElementSibling;
+                    content.classList.toggle("active");
+                    var arrow = this.querySelector('.arrow');
+                    arrow.classList.toggle('rotate');
+                });
+            });
+
+            // Add the "active" class to the content of the first collapsible on page load
+            var firstCollapsibleContent = document.querySelector('.collapsible:first-of-type .content');
+            var firstCollapsibleArrow = document.querySelector('.collapsible:first-of-type .arrow');
+            firstCollapsibleContent.classList.add('active');
+            firstCollapsibleArrow.classList.add('rotate');
+
+            var addFirstStepBtn = document.getElementById("addFirstStepBtn");
+            var bottomForm = document.getElementById("bottomForm");
+            var topForm = document.getElementById("topForm");
+
+            bottomForm.addEventListener("submit", function (event) {
+                event.preventDefault();
+            })
+
+            // Add an event listener to the "Create Walkthrough" button in the first collapsible
+            topForm.addEventListener("submit", function (event) {
+                // Prevent the default form submission behavior
+                event.preventDefault();
+
+                // Hide the first collapsible
+                var firstCollapsible = topForm.closest('.collapsible');
+                firstCollapsible.querySelector('.content').classList.remove('active');
+                var firstArrow = firstCollapsible.querySelector('.arrow');
+                firstArrow.classList.remove('rotate');
+
+                // Show the second collapsible
+                var secondCollapsible = bottomForm.closest('.collapsible');
+                var secondContent = secondCollapsible.querySelector('.content');
+                secondContent.classList.add('active');
+                var secondArrow = secondCollapsible.querySelector('.arrow');
+                secondArrow.classList.add('rotate');
+            });
+            addFirstStepBtn.addEventListener("click", function () {
+                bottomForm.style.display = "block"; // Show the bottom form
+            });
+
+        });
+    </script> -->
+
+</body>
+
+</html>

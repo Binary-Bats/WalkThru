@@ -1,0 +1,327 @@
+.collapsible {
+    margin-bottom: 10px;
+    
+}
+
+.collapsible-btn {
+    color: #a198e8;
+    background-color: #07283b;
+    cursor: pointer;
+    padding: 5px;
+    padding-left: 10px;
+    width: 100%;
+    text-align: left;
+    font-weight: 500;
+    font-size: 1rem;
+    border: none;
+    outline: none;
+    border-radius: 0.3rem;
+}
+
+body {
+    background-color: #07273b;
+    
+}
+.content1{
+    overflow: hidden;
+}
+
+.content {
+
+
+    width: 100%;
+    padding-left: 10px;
+    padding-right: 4px;
+    border-radius: 5px;
+    transition: max-height 0.3s ease-out;
+    max-height: 0;
+}
+
+.active {
+    max-height: 1000px;
+    /* Adjust as needed, consider using a large enough value */
+}
+
+.arrow {
+    float: right;
+    transition: transform 0.3s;
+}
+
+.rotate {
+    transform: rotate(180deg);
+    /* Rotate arrow when section is active */
+}
+
+*,
+*:before,
+*:after {
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+}
+
+
+
+#topForm {
+    width: 100%;
+    margin: 20px auto;
+    color: #b7c1ce;
+    padding: 10px 20px;
+    background-color: #09334e;
+    border-radius: 8px;
+}
+
+#walkThroughIfo{
+    display: none;
+        width: 100%;
+            margin: 20px auto;
+            color: #b7c1ce;
+            padding: 10px 20px;
+            background-color: #09334e;
+            border-radius: 8px;
+}
+h1 {
+    margin: 0 0 30px 0;
+    text-align: center;
+}
+
+input[type="text"],
+
+.addFirstBtn:hover {
+    background-color: #8e44ad;
+    /* Change background color on hover */
+    color: #fff;
+    /* Change text color on hover */
+}
+
+/* Hover effect for "Walkthrough" button */
+#topForm .submitBtn:hover {
+    background-color: #8e44ad;
+    /* Change background color on hover */
+    color: #fff;
+    /* Change text color on hover */
+}
+
+textarea,
+select {
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    font-size: 16px;
+    height: auto;
+    margin: 0;
+    outline: 0;
+    padding: 15px;
+    width: 100%;
+    background-color: #e8eeef;
+    color: #8a97a0;
+    box-shadow: 0 1px 0 rgba(0, 0, 0, 0.03) inset;
+    margin-bottom: 30px;
+}
+
+input[type="radio"],
+input[type="checkbox"] {
+    margin: 0 4px 8px 0;
+}
+
+select {
+    padding: 6px;
+    height: 32px;
+    border-radius: 2px;
+}
+
+.submitBtn {
+    padding: 5px 12px 5px 12px;
+    color: #FFF;
+    background-color: #6E3CBC;
+    font-size: 15px;
+    text-align: center;
+    font-style: normal;
+    border-radius: 5px;
+    margin-left: 10px;
+    border: 1px solid #6E3CBC;
+    /* border-width: 1px 1px 3px; */
+
+    margin-bottom: 10px;
+}
+
+input[type=text] {
+    width: 90%;
+    border-radius: 3px;
+    background-color: #07273b;
+    padding: 12px 20px;
+    margin: 8px 0;
+    
+    box-sizing: border-box;
+
+}
+
+textarea {
+    width: 90%;
+    background-color: #07273b;
+    border-radius: 3px;
+    padding: 12px 20px;
+    margin: 8px 0;
+    overflow: hidden;
+    box-sizing: border-box;
+}
+
+hr {
+    margin-bottom: 0;
+}
+
+.addStepDiv {
+    width: 100%;
+    margin: 2px auto;
+    color: #b7c1ce;
+    padding: 10px 2px;
+    padding-right: 50px;
+    background-color: #09334e;
+    border-radius: 8px;
+}
+
+.addFirstBtn {
+    padding: 5px 12px 5px 12px;
+    color: #FFF;
+    background-color: #6E3CBC;
+    font-size: 15px;
+    font-weight: 500;
+    text-align: center;
+    font-style: normal;
+    border-radius: 5px;
+    margin-left: 10px;
+    border: 1px solid #6E3CBC;
+    /* border-width: 1px 1px 3px; */
+    margin-left: 1.5rem;
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+
+fieldset {
+    margin-bottom: 30px;
+    border: none;
+}
+
+legend {
+    font-size: 1.4em;
+    margin-bottom: 10px;
+}
+
+label {
+    display: block;
+    margin-bottom: 8px;
+}
+
+label.light {
+    font-weight: 300;
+    display: inline;
+}
+
+#bottomForm {
+    display: none;
+    margin-left: 1.5rem;
+    margin-right: 1.5rem;
+    background-color: #082d45;
+    width: 100%;
+    color: #b7c1ce;
+    padding: 10px 20px;
+    border-radius: 8px;
+}
+.addStepBtn:hover {
+background-color: #8e44ad;
+    /* Change background color on hover */
+    color: #fff;
+    /* Change text color on hover */
+}
+
+
+#accordion .step {
+    border: 0;
+    margin-bottom: 10px;
+background-color: #09334e;
+padding: 5px 12px 5px 12px;
+border-radius: 8px;
+
+}
+
+#accordion .step-title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 5px 12px 5px 12px;
+    color: #FFF;
+border: 0;
+    padding: 10px 2px;
+        padding-right: 50px;
+        background-color: #09334e;
+        border-radius: 8px;
+    width: 100%;
+    padding: 10px;
+    cursor: pointer;
+
+}
+
+.Description{
+
+            background-color: #082d45;
+            width: 100%;
+            color: #b7c1ce;
+            padding: 10px 20px;
+            border-radius: 8px;
+}
+#waltTitle{
+    margin-bottom: 10px;
+}
+.desLable{
+    color: #b7c1ce;
+}
+/* .mdDiv{
+    overflow-y: auto;
+    height: 150px;
+} */
+#accordion .step-title i {
+    transition: transform 0.3s ease;
+}
+
+#accordion .step-content {
+    background-color: #09334e;
+    padding: 10px;
+
+    display: none;
+    border-radius: 8px;
+}
+.endTour{
+    margin: 10px;
+    margin-right: 100px;
+    align-items: center;
+    background-color:#D24545 ;
+
+}
+button{
+    cursor: pointer;
+}
+.endTour:hover{
+    background-color:#FF6868 ;
+}
+
+@media screen and (min-width: 480px) {}
+
+
+#controllBtn{
+    
+    display: none;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    justify-content: flex-end;
+    margin-right: 10px;
+    gap: 5px;
+    
+}
+
+.ctnBtnIcn{
+    color: #9288df;
+    font-size: 20px;
+}
+
+#bottomConDiv{
+    margin-bottom: 40px;
+}

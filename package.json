@@ -1,0 +1,135 @@
+{
+  "name": "webview",
+  "displayName": "WEBVIEW",
+  "description": "",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.86.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [],
+  "main": "./extension.js",
+  "contributes": {
+    "capabilities": {
+      "hoverProvider": "true"
+    },
+    "hoverProviders": [
+      {
+        "id": "webview-hover-provider",
+        "fileMatch": [
+          "**/*.js",
+          "**/*.jsx",
+          "**/*.ts",
+          "**/*.tsx"
+        ],
+        "scheme": "file"
+      }
+    ],
+    "commands": [
+      {
+        "command": "webview.helloWorld",
+        "title": "Hello World",
+        "icon": "./play.png"
+      },
+      {
+        "command": "webview.startTour",
+        "title": "Start Tour",
+        "icon":"./play.png"
+      },
+      {
+        "command": "webview.helloWorld1",
+        "title": "Hello World",
+        "icon": "$(bug)"
+      },
+      {
+        "command": "webview.helloWorld2",
+        "title": "Hello World",
+        "icon": "$(root-folder)"
+      },
+      {
+        "command": "webview.select",
+        "title": "Select Text"
+      },
+      {
+        "command": "webview.openSidePanel",
+        "title": "Add Tour",
+        "icon": "icons/add.png"
+      },
+      {
+        "command": "webview.openLeftSideView",
+        "title": "Left Tree View"
+      },
+      {
+        "command": "webview.openboth",
+        "title": "Open Both views"
+      }
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "webview",
+          "title": "Example for webview",
+          "icon": "./play.png"
+        }
+      ]
+    },
+    "views": {
+      "webview": [
+        {
+          "id": "myTree",
+          "name": "Webview",
+          "icon": "./play.png"
+        }
+      ]
+    },
+    "menus": {
+      "view/title": [
+        {
+          "command": "webview.openSidePanel",
+          "when": "view == myTree",
+          "group": "navigation"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "webview.helloWorld",
+          "when": "view == myTree && viewItem == Step",
+          "group": "inline@1"
+        },
+        {
+          "command": "webview.helloWorld1",
+          "when": "view == myTree && viewItem == Step",
+          "group": "inline@2"
+        },
+        {
+          "command": "webview.startTour",
+          "when": "view == myTree && viewItem == Tour",
+          "group": "inline@1"
+        }
+        
+      ]
+    }
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "pretest": "npm run lint",
+    "test": "vscode-test"
+  },
+  "devDependencies": {
+    "@types/mocha": "^10.0.6",
+    "@types/node": "18.x",
+    "@types/vscode": "^1.86.0",
+    "@vscode/test-cli": "^0.0.4",
+    "@vscode/test-electron": "^2.3.9",
+    "eslint": "^8.56.0",
+    "typescript": "^5.3.3"
+  },
+  "dependencies": {
+    "markdown-it": "^14.0.0",
+    "marked": "^12.0.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  }
+}

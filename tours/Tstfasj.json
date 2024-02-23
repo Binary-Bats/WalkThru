@@ -1,0 +1,24 @@
+{
+  "title": "Tstfasj",
+  "description": "hjsdjkf",
+  "steps": [
+    {
+      "data": {
+        "file": "src/extension.ts",
+        "line": 18,
+        "line2": 17,
+        "text": ""
+      },
+      "description": "ahjkhjda"
+    },
+    {
+      "data": {
+        "file": "src/extension.ts",
+        "line": 18,
+        "line2": 17,
+        "text": ""
+      },
+      "description": "ahjkhjdaasd"
+    }
+  ]
+}

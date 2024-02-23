@@ -1,0 +1,33 @@
+{
+  "title": "Test",
+  "description": "test",
+  "steps": [
+    {
+      "data": {
+        "file": "src/extension.ts",
+        "line": 33,
+        "line2": 32,
+        "text": ""
+      },
+      "description": "test"
+    },
+    {
+      "data": {
+        "file": "src/extension.ts",
+        "line": 33,
+        "line2": 32,
+        "text": ""
+      },
+      "description": "test1"
+    },
+    {
+      "data": {
+        "file": "src/extension.ts",
+        "line": 33,
+        "line2": 32,
+        "text": ""
+      },
+      "description": "test13"
+    }
+  ]
+}

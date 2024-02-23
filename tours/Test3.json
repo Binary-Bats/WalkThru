@@ -1,0 +1,15 @@
+{
+  "title": "Test3",
+  "description": "Test hsfjhsa sajffgh sfajksgjh",
+  "steps": [
+    {
+      "data": {
+        "file": "src/extension.ts",
+        "line": 18,
+        "line2": 17,
+        "text": ""
+      },
+      "description": "TEetet"
+    }
+  ]
+}
