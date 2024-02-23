@@ -1,7 +1,7 @@
 const vscode = require("vscode");
 const MyPanel = require("./src/rightView");
 const MyTreeViewDataProvider = require("./src/leftTreeView");
-const { join } = require("path");
+const { join, dirname } = require("path");
 const fs = require("fs");
 const MarkdownIt = require("markdown-it");
 const mapJsonDataToTree = require("./src/readTours")
@@ -10,6 +10,23 @@ function activate(context) {
 
   const workspaceFolder = vscode.workspace.workspaceFolders[0].uri.fsPath; // Get the root of the project
   const tourInfo = join(workspaceFolder, ".tours/tourInfo.json");
+  // Function to create the file if it doesn't exist
+  function ensureTourInfoFile() {
+    if (!fs.existsSync(tourInfo)) {
+      // Create the .tours directory if needed
+      const toursDirectory = join(workspaceFolder, ".tours");
+      if (!fs.existsSync(toursDirectory)) {
+        fs.mkdirSync(toursDirectory, { recursive: true });
+      }
+
+      // Create an empty tourInfo.json file (or with default content)
+      fs.writeFileSync(tourInfo, "[]");
+      console.log('tourInfo.json file created');
+    }
+  }
+
+  // Ensure the file exists
+  ensureTourInfoFile();
 
   // const tourInfo = join(context.extensionPath, "tours/tourInfo.json");
   let data = JSON.parse(fs.readFileSync(tourInfo, "utf-8"));
