@@ -27,7 +27,7 @@ class MyPanel {
     this.emitter = new EventEmitter();
     this.panel = vscode.window.createWebviewPanel(
       "sidePanel",
-      "My Side Panel",
+      "WalkThru",
       vscode.ViewColumn.Two,
       {
         enableScripts: true, // Enable JavaScript in the webview
@@ -68,13 +68,6 @@ class MyPanel {
     this.panel.webview.onDidReceiveMessage((message) => {
       if (message.command === "submitForm") {
         this.handleFormSubmission(message.data);
-      } else if (message.command === "addStep") {
-        this.handleFormSubmission(message.data);
-      } else if (message.command === "webviewClosed") {
-        this.handleFormSubmission(message);
-        console.log(
-          "----------------------------------------------------------------"
-        );
       } else if (message.command === "endTour") {
         this.handleFormSubmission(message.data);
         saveTour(this.context, message.data)
@@ -109,6 +102,10 @@ class MyPanel {
     vscode.window.showInformationMessage(
       `Received form data: ${JSON.stringify(formData)}`
     );
+  }
+
+  closePanel() {
+    this.panel.dispose()
   }
 
   render() {

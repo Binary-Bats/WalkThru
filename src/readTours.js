@@ -26,7 +26,7 @@ let mapStepsJsonToTree = (title) => {
 
 let mapJsonDataToTree = (context) => {
     const workspaceFolder = vscode.workspace.workspaceFolders[0].uri.fsPath; // Get the root of the project
-    const tourInfo = join(workspaceFolder, ".tours/tourInfo.json");
+    const tourInfo = join(workspaceFolder, ".WalkThru/index.json");
     let jsonData = JSON.parse(fs.readFileSync(tourInfo, "utf-8"));
 
     return {

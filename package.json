@@ -70,7 +70,7 @@
       "activitybar": [
         {
           "id": "webview",
-          "title": "Example for webview",
+          "title": "WalkThru",
           "icon": "./play.png"
         }
       ]
@@ -79,7 +79,7 @@
       "webview": [
         {
           "id": "myTree",
-          "name": "Webview",
+          "name": "Space",
           "icon": "./play.png"
         }
       ]

@@ -143,7 +143,7 @@ function displayInfo(data) {
   walkThroughIfo.style.display = "block";
   topForm.style.display = "none";
   waltTitle.textContent = data.title;
-  walkDesc.innerHTML = `<p>${data.description}</p>`;
+  walkDesc.innerHTML = `<p>${marked.parse(data.description)}</p>`;
 
   // ----------------------------------------
   // Hide the first collapsible
@@ -230,6 +230,9 @@ function preSteps(parentElement, step, description) {
 function next() {
 
   if (index == tour.steps.length) {
+    vscode.postMessage({
+      command: "next",
+    });
     return
   }
   const step = document.getElementById(index).nextElementSibling

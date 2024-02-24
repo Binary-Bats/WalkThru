@@ -9,26 +9,26 @@ var myPanel;
 function activate(context) {
 
   const workspaceFolder = vscode.workspace.workspaceFolders[0].uri.fsPath; // Get the root of the project
-  const tourInfo = join(workspaceFolder, ".tours/tourInfo.json");
+  const tourInfo = join(workspaceFolder, ".WalkThru/index.json");
   // Function to create the file if it doesn't exist
   function ensureTourInfoFile() {
     if (!fs.existsSync(tourInfo)) {
-      // Create the .tours directory if needed
-      const toursDirectory = join(workspaceFolder, ".tours");
+      // Create the .WalkThru directory if needed
+      const toursDirectory = join(workspaceFolder, ".WalkThru");
       if (!fs.existsSync(toursDirectory)) {
         fs.mkdirSync(toursDirectory, { recursive: true });
       }
 
-      // Create an empty tourInfo.json file (or with default content)
+      // Create an empty index.json file (or with default content)
       fs.writeFileSync(tourInfo, "[]");
-      console.log('tourInfo.json file created');
+      console.log('index.json file created');
     }
   }
 
   // Ensure the file exists
   ensureTourInfoFile();
 
-  // const tourInfo = join(context.extensionPath, "tours/tourInfo.json");
+  // const tourInfo = join(context.extensionPath, "tours/index.json");
   let data = JSON.parse(fs.readFileSync(tourInfo, "utf-8"));
 
   // Create a new instance of MyTreeViewDataProvider
@@ -104,7 +104,7 @@ function activate(context) {
   );
 
   // --------------------------- Play Tour -----------------------------------------------------
-  const codeTourDecorationType = vscode.window.createTextEditorDecorationType({
+  let codeTourDecorationType = vscode.window.createTextEditorDecorationType({
     backgroundColor: 'rgba(255, 255, 0, 0.3)', // Yellow highlight
     isWholeLine: false
   });
@@ -120,7 +120,7 @@ function activate(context) {
 
   async function playbackTour(tourData) {
     let tourRunning = true;
-    if (!tourRunning) return;
+    // if (!tourRunning) return;
 
     // vscode.commands.executeCommand("webview.openSidePanel", tourData)
 
@@ -142,8 +142,6 @@ function activate(context) {
       const step = tourData.steps[stepIndex];
       console.log(step)
       // Display current step description
-      vscode.window.showInformationMessage(step.description);
-      vscode.window.showInformationMessage(step.data.file);
 
       if (step.data.file && step.data.line) {
         const stepPath = join(workspaceFolder, step.data.file)
@@ -154,6 +152,10 @@ function activate(context) {
           .then(editor => {
             // Highlight the line of code
             const line = step.data.line - 1; // Line numbers are 1-based, vscode uses 0-based
+            if (!tourRunning) {
+              editor.setDecorations(codeTourDecorationType, []);
+              return
+            }
             const decoration = { range: new vscode.Range(line, 0, line, Number.MAX_VALUE) };
             editor.setDecorations(codeTourDecorationType, [decoration]);
             // Scroll to the highlighted line
@@ -171,16 +173,22 @@ function activate(context) {
       index.stepIndex++; // Increment stepIndex within the shared index
       if (index.stepIndex >= tourData.steps.length) {
         tourRunning = false;
+        index.stepIndex--
+        goToNextStep(index.stepIndex);
+
         // Stop the tour if we're out of bounds
         console.log("Tour ended: Reached the final step");
         if (vscode.window.activeTextEditor) {
+          console.log("Stoping")
           vscode.window.activeTextEditor.setDecorations(codeTourDecorationType, []);
         }
+        webTour.closePanel()
         // Add any necessary cleanup for when the tour stops here
         return;
       }
       console.log(index.stepIndex);
       goToNextStep(index.stepIndex); // Call goToNextStep within the shared index
+
     });
 
     webTour.emitter.on('previous', function () {
@@ -194,14 +202,19 @@ function activate(context) {
       }
       console.log(index.stepIndex);
       goToNextStep(index.stepIndex); // Call goToNextStep within the shared context
+
     });
     webTour.emitter.on('stop', function () {
-      console.log("Tour stopped by user");
       tourRunning = false;
+      goToNextStep(index.stepIndex);
+      console.log("Tour stopped by user");
+      // tourRunning = false;
       // Cleanup: Remove decorations 
       if (vscode.window.activeTextEditor) {
+        console.log("Stoping")
         vscode.window.activeTextEditor.setDecorations(codeTourDecorationType, []);
       }
+      webTour.closePanel()
     });
 
   }
@@ -209,7 +222,7 @@ function activate(context) {
 
   let startTour = vscode.commands.registerCommand("webview.startTour", async (node) => {
     console.log(node)
-    const tourFilePath = join(workspaceFolder, `.tours/${node.label}.json`)
+    const tourFilePath = join(workspaceFolder, `.WalkThru/${node.label}.json`)
 
     if (!tourFilePath) {
       vscode.window.showErrorMessage("No file path provided.");

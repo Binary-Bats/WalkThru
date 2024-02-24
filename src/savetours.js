@@ -5,12 +5,12 @@ const saveTour = (context, data) => {
     const projectName = vscode.workspace.name;
     const tourName = data.title.replace(/\s+/g, '-').toLowerCase(); // Convert tour name to lowercase and replace spaces with hyphens
     const tourFileName = `${tourName}.json`;
-    const toursDir = join(vscode.workspace.rootPath, '.tours');
+    const toursDir = join(vscode.workspace.rootPath, '.WalkThru');
     if (!fs.existsSync(toursDir)) {
         fs.mkdirSync(toursDir);
     }
     const filePath = join(toursDir, tourFileName);
-    const indexPtah = join(toursDir, "tourInfo.json")
+    const indexPtah = join(toursDir, "index.json")
     let tourInfo = { title: tourName, numSteps: data.steps.length };
     saveTourData(filePath, data);
     appendToJson(indexPtah, tourInfo)
@@ -18,7 +18,7 @@ const saveTour = (context, data) => {
 
     // console.log("Saving Data..............");
     // const tourPath = join(context.extensionPath, "tours");
-    // const tourInfoPath = join(context.extensionPath, "tours/tourInfo.json")
+    // const tourInfoPath = join(context.extensionPath, "tours/index.json")
     // let tourInfo = { title: data.title, numSteps: data.steps.length };
     // appendToJson(tourInfoPath, tourInfo)
     // fs.writeFile(
@@ -82,7 +82,7 @@ function saveTourData(filePath, data) {
 //     const projectName = vscode.workspace.name;
 //     const tourName = tourData.name.replace(/\s+/g, '-').toLowerCase(); // Convert tour name to lowercase and replace spaces with hyphens
 //     const tourFileName = `${tourName}.json`;
-//     const toursDir = path.join(vscode.workspace.rootPath, '.tours');
+//     const toursDir = path.join(vscode.workspace.rootPath, 'WalkThru');
 //     if (!fs.existsSync(toursDir)) {
 //         fs.mkdirSync(toursDir);
 //     }
