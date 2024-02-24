@@ -54,7 +54,7 @@
       },
       {
         "command": "webview.openSidePanel",
-        "title": "Add Tour",
+        "title": "Record Tour",
         "icon": "icons/add.png"
       },
       {
