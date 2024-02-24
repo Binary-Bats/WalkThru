@@ -4,7 +4,7 @@ const vscode = require('vscode')
 
 let mapStepsJsonToTree = (title) => {
     const workspaceFolder = vscode.workspace.workspaceFolders[0].uri.fsPath;
-    const stepsJsonPath = join(workspaceFolder, `.tours/${title}.json`);
+    const stepsJsonPath = join(workspaceFolder, `.WalkThru/${title}.json`);
 
     // const stepsJsonData = fs.readFileSync(stepsJsonPath, 'utf-8');
     // const stepsJsonObject = JSON.parse(stepsJsonData);
@@ -19,7 +19,7 @@ let mapStepsJsonToTree = (title) => {
         .then((stepsJsonData) => stepsJsonData.steps.map((step) => ({
             label: `Step ${step.description}`,
             contextValue: "Step",
-            iconPath: "icons/point.png",
+            iconPath: "icons/steps.png",
             data: step.data,
         })));
 }
@@ -36,7 +36,7 @@ let mapJsonDataToTree = (context) => {
         children: jsonData.map((item) => (
             {
                 label: item.title,
-                iconPath: "icons/route.png",
+                iconPath: "icons/tour.png",
                 contextValue: "Tour",
                 children: mapStepsJsonToTree(item.title)
             })),

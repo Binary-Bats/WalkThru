@@ -71,7 +71,7 @@
         {
           "id": "webview",
           "title": "WalkThru",
-          "icon": "./play.png"
+          "icon": "./icons/logo.png"
         }
       ]
     },

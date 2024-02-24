@@ -181,9 +181,10 @@ class MyPanel {
             <div class="row">
                 <div class="col-md-12 >
                 <div class="controllBtn" id="controllBtn">
-                        <button class="ctnBtnIcn" onclick="previous()">◀</button>
-                        <button class="ctnBtnIcn" onclick="stop()">◼</button>
-                        <button class="ctnBtnIcn" onclick="next()">▶</button>
+                
+                        <button class="ctnBtnIcn" onclick="previous()">◄</button>
+                        <button class="ctnBtnIcn stopBtn" onclick="stop()">◼</button>
+                        <button class="ctnBtnIcn" onclick="next()">►</button>
                 </div>
                 <div class="allStepsDiv" id="allStepsDiv">
                 <p></p>

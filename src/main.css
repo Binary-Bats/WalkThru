@@ -313,13 +313,22 @@ button{
     margin-bottom: 10px;
     justify-content: flex-end;
     margin-right: 10px;
-    gap: 5px;
+    gap: 8px;
+    
     
 }
 
 .ctnBtnIcn{
-    color: #9288df;
+    color: #fff;
+    background-color: #07273b;
+    border-radius: 50%;
     font-size: 20px;
+    border: solid #fff;
+}
+.stopBtn{
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
 }
 
 #bottomConDiv{
