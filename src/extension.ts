@@ -3,13 +3,25 @@ import MyPanel from "./webview";
 import MyTreeViewDataProvider from "./treeView";
 import generateFileTreeJson from "./fileStructure";
 import path from "path";
-let myPanel: any;
+import { WalkthruFileWatcher } from "./walkthruFileWatcher";
+
 const fs = require("fs");
 export function activate(context: vscode.ExtensionContext) {
   let disposable = vscode.commands.registerCommand("walkthru.react", () => {
-    myPanel = new MyPanel(context);
+    const myPanel = new MyPanel(context);
   });
-  new MyTreeViewDataProvider(context);
+  // Initialize the tree view provider
+  const treeDataProvider = new MyTreeViewDataProvider(context);
+
+  // Initialize the file watcher
+  const fileWatcher = new WalkthruFileWatcher(treeDataProvider);
+
+  // Register the file watcher for disposal
+  context.subscriptions.push({
+    dispose: () => {
+      fileWatcher.dispose();
+    },
+  });
 
   const openWalkthru = vscode.commands.registerCommand(
     "walkthru.openWalkthru",

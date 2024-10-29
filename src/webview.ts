@@ -108,14 +108,13 @@ export default class MyPanel {
   }
 
   private render() {
-    const scriptUri = this.panel.webview.asWebviewUri(
+    const scriptSrc = this.panel.webview.asWebviewUri(
       vscode.Uri.joinPath(this.context.extensionUri, "web", "dist", "index.js")
     );
 
-    const cssUri = this.panel.webview.asWebviewUri(
+    const cssSrc = this.panel.webview.asWebviewUri(
       vscode.Uri.joinPath(this.context.extensionUri, "web", "dist", "index.css")
     );
-
     // Convert initial data to a safe string
     const initialDataScript = this.initialData
       ? `<script>window.initialData = ${JSON.stringify(
@@ -129,15 +128,14 @@ export default class MyPanel {
                 <head>
                     <meta charset="UTF-8">
                     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${this.panel.webview.cspSource}; script-src ${this.panel.webview.cspSource} 'unsafe-inline';">
-                    <link rel="stylesheet" href="${cssUri}" />
+                    <link rel="stylesheet" href="${cssSrc}" />
                     <title>React App</title>
                 </head>
                 <body>
                     <noscript>You need to enable JavaScript to run this app.</noscript>
                     <div id="root"></div>
                     ${initialDataScript}
-                    <script src="${scriptUri}"></script>
+                   <script src="${scriptSrc}"></script>
                 </body>
             </html>`;
   }
