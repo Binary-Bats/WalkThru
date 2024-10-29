@@ -60,7 +60,8 @@ const FileExplorerModal = ({ handleAddDocs }: Props) => {
         <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center p-4">
 
             {fileData ? <FileExplorer handleAdd={(selectedPath: string) => {
-                handleAddDocs(selectedPath, "snippet"); // Call parent function with selected path
+                console.log(selectedPath, "=============================")
+                handleAddDocs(selectedPath, "path"); // Call parent function with selected path
             }} data={fileData} /> : ""}
         </div>
     );

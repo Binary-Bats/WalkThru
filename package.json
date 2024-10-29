@@ -12,6 +12,25 @@
   "activationEvents": [],
   "main": "./out/extension.js",
   "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "walkthru-explorer",
+          "title": "Walkthru",
+          "icon": "resources/walkthru.svg"
+        }
+      ]
+    },
+    "views": {
+      "walkthru-explorer": [
+        {
+          "id": "walkthruView",
+          "name": "Walkthrus",
+          "icon": "resources/walkthru.svg",
+          "contextualTitle": "Walkthru Explorer"
+        }
+      ]
+    },
     "commands": [
       {
         "command": "walkthru.react",
@@ -20,6 +39,10 @@
       {
         "command": "walkthru.select",
         "title": "Select Code"
+      },
+      {
+        "command": "walkthru.openWalkthru",
+        "title": "Open Walkthru"
       }
     ]
   },

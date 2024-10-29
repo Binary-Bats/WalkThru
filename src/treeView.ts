@@ -20,83 +20,123 @@ interface WalkthruFile {
 export default class MyTreeViewDataProvider
   implements vscode.TreeDataProvider<TreeItemData> {
   private _onDidChangeTreeData = new vscode.EventEmitter<
-    TreeItemData | undefined
+    TreeItemData | undefined | null
   >();
   readonly onDidChangeTreeData = this._onDidChangeTreeData.event;
 
   private context: vscode.ExtensionContext;
-  private data: WalkthruFile[] = []; // The tree data
+  private data: WalkthruFile[] = [];
 
   constructor(context: vscode.ExtensionContext) {
     this.context = context;
-    vscode.window.createTreeView("myTree", {
+    // Create the TreeView with the provider
+    const treeView = vscode.window.createTreeView("walkthruView", {
       treeDataProvider: this,
+      showCollapseAll: true, // Add collapse all button
     });
-    this.initialize(); // Call initialize to load data
+
+    // Initialize the data
+    this.initialize().catch((err) => {
+      console.error("Failed to initialize tree view:", err);
+      vscode.window.showErrorMessage("Failed to initialize WalkThrus view");
+    });
   }
 
   private async initialize(): Promise<void> {
-    this.data = await getTreeJsonForWalkThrus(); // Await the promise
-    this._onDidChangeTreeData.fire(undefined); // Notify that data has changed
+    try {
+      this.data = await getTreeJsonForWalkThrus();
+      this._onDidChangeTreeData.fire(undefined);
+    } catch (error) {
+      console.error("Error loading walkthru data:", error);
+      throw error;
+    }
   }
 
-  // Called when children of a TreeItem are requested
   getChildren(element?: TreeItemData): Thenable<TreeItemData[]> {
-    if (!element) {
-      // Return root level (workspace)
-      return Promise.resolve([this.createWorkspaceItem()]);
+    try {
+      if (!element) {
+        // Return root level (workspace)
+        return Promise.resolve([this.createWorkspaceItem()]);
+      }
+      return Promise.resolve(element.children || []);
+    } catch (error) {
+      console.error("Error getting children:", error);
+      return Promise.resolve([]);
     }
-    return Promise.resolve(element.children || []);
   }
 
-  // Called when a specific TreeItem is requested
   getTreeItem(element: TreeItemData): vscode.TreeItem {
-    const treeItem = new vscode.TreeItem(
-      element.label,
-      element.children
-        ? vscode.TreeItemCollapsibleState.Collapsed
-        : vscode.TreeItemCollapsibleState.None
-    );
-
-    // Set the icon if available
-    if (element.iconPath) {
-      treeItem.iconPath = vscode.Uri.file(
-        this.context.asAbsolutePath(element.iconPath)
+    try {
+      const treeItem = new vscode.TreeItem(
+        element.label,
+        element.children
+          ? vscode.TreeItemCollapsibleState.Collapsed
+          : vscode.TreeItemCollapsibleState.None
       );
+
+      // Set the icon if available
+      if (element.iconPath) {
+        try {
+          treeItem.iconPath = vscode.Uri.file(
+            this.context.asAbsolutePath(element.iconPath)
+          );
+        } catch (error) {
+          console.warn("Failed to set icon path:", error);
+          // Continue without icon if there's an error
+        }
+      }
+
+      // Set additional properties
+      treeItem.contextValue = element.contextValue;
+
+      // Add command only if contextValue is "file"
+      if (element.contextValue === "file") {
+        treeItem.command = {
+          command: "walkthru.openWalkthru",
+          title: "Open Walkthru",
+          arguments: [element],
+        };
+
+        // Add tooltip for files
+        treeItem.tooltip = `Open ${element.label} walkthru`;
+      }
+
+      return treeItem;
+    } catch (error) {
+      console.error("Error creating tree item:", error);
+      return new vscode.TreeItem("Error");
     }
+  }
 
-    treeItem.contextValue = element.contextValue; // Set the context (e.g., file/folder)
-
-    // Add command only if contextValue is "file"
-    if (element.contextValue === "file") {
-      treeItem.command = {
-        command: "walkthru.helloWorld",
-        title: "Tree Item Clicked",
-        arguments: [element],
+  private createWorkspaceItem(): TreeItemData {
+    try {
+      return {
+        label: "WalkThrus",
+        contextValue: "workspace",
+        children: this.data.map((file) => ({
+          label: file.title,
+          contextValue: "file",
+          filename: file.fileName,
+          iconPath: file.icon || "", // Provide default empty string if icon is undefined
+        })),
+      };
+    } catch (error) {
+      console.error("Error creating workspace item:", error);
+      return {
+        label: "Error loading WalkThrus",
+        contextValue: "error",
+        children: [],
       };
     }
-
-    return treeItem;
   }
 
-  // Creates the workspace root item
-  private createWorkspaceItem(): TreeItemData {
-    console.log("+++++++++++++++++++++++++++++++", this.data);
-    return {
-      label: "WalkThrus",
-      contextValue: "workspace",
-      children: this.data.map((file) => ({
-        label: file.title, // File title
-        contextValue: "file",
-        filename: file.fileName,
-        iconPath: file.icon, // Icon path for the file
-      })),
-    };
-  }
-
-  // Manually refresh the tree view
-  public refresh(): void {
-    this.initialize();
-    this._onDidChangeTreeData.fire(undefined); // Notify VSCode to refresh the tree view
+  public async refresh(): Promise<void> {
+    try {
+      await this.initialize();
+      this._onDidChangeTreeData.fire(undefined);
+    } catch (error) {
+      console.error("Error refreshing tree view:", error);
+      vscode.window.showErrorMessage("Failed to refresh WalkThrus view");
+    }
   }
 }

@@ -31,7 +31,7 @@ interface TreeItem {
  * @returns Promise<TreeItem[]> Array of tree items
  */
 async function getWalkThruDocsTree(workspaceRoot: string): Promise<TreeItem[]> {
-  const folderPath: string = path.join(workspaceRoot, ".WalkThru");
+  const folderPath: string = path.join(workspaceRoot, ".walkthru");
 
   // Ensure the folder exists
   if (!fs.existsSync(folderPath)) {

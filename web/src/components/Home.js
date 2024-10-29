@@ -62,7 +62,7 @@ const Home = () => {
         const handleMessage = (event) => {
             const message = event.data;
             if (message.command === 'select') {
-                handleAddDocs(message.data, message.type);
+                handleAddDocs(message.data, "snippet");
                 setListening(false);
             }
         };
@@ -124,11 +124,10 @@ const Home = () => {
                     <Button_1.default onClick={handleSaveClick}> {isEditing ? 'Save' : 'Update'}</Button_1.default>
                 </div>
 
-                <div className="border-b border-gray-600 mb-4"></div></></>);
-    {
-        docs?.blocks?.map((item) => (item.type === "snippet" ? <Highlighter_1.default key={item.id} filePath={item.data.file} startNumber={item?.data.line} endLine={item?.data.line2} content={item?.data.text}/> : <FilePath_1.default key={item.id} type={item.data.contextValue} path={item.data.path}/>));
-    }
-    <div className="inline-flex space-x-2 ring-2 ring-blue-500 rounded-lg p-2">
+                <div className="border-b border-gray-600 mb-4"></div>
+                {docs?.blocks?.map((item) => (item.type === "snippet" ? <Highlighter_1.default key={item.id} filePath={item.data.file} startNumber={item?.data.line} endLine={item?.data.line2} content={item?.data.text}/> : <FilePath_1.default key={item.id} type={item.data.contextValue} path={item.data.path}/>))}
+
+                <div className="inline-flex space-x-2 ring-2 ring-blue-500 rounded-lg p-2">
                     <Button_1.default onClick={() => {
             setIsAddModel(true);
             sendMessage("focusEditor", "t");
@@ -138,22 +137,15 @@ const Home = () => {
                     <Button_1.default onClick={() => { setIsFileExOpen(true); }}>
                         Add Path
                     </Button_1.default>
-                </div>;
-    {
-        isAddModel ? <AddSnippet_1.default handleAddToDocs={() => {
+                </div>
+                {isAddModel ? <AddSnippet_1.default handleAddToDocs={() => {
                 sendMessage("alert", "this is test");
                 setIsAddModel(false);
-            }} handleClose={() => { setIsAddModel(false); }}/> : "";
-    }
-    {
-        isFileExOpen ? <FileExlorerModel_1.default handleAddDocs={handleAddDocs}/> : "";
-    }
+            }} handleClose={() => { setIsAddModel(false); }}/> : ""}
+                {isFileExOpen ? <FileExlorerModel_1.default handleAddDocs={handleAddDocs}/> : ""}
+
+            </div>
+        </div>);
 };
-div >
-;
-div >
-;
-;
-;
 exports.default = Home;
 //# sourceMappingURL=Home.js.map
