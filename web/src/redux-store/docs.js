@@ -4,7 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 var _a;
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.setState = exports.updateTitle = exports.updateDocs = exports.addDocs = exports.docSlice = void 0;
+exports.setState = exports.updateDocBlocks = exports.updateTitle = exports.updateDocs = exports.addDocs = exports.docSlice = void 0;
 const toolkit_1 = require("@reduxjs/toolkit");
 const VscodeSendMessage_1 = __importDefault(require("../utils/VscodeSendMessage"));
 const uuid_1 = require("uuid");
@@ -41,6 +41,11 @@ exports.docSlice = (0, toolkit_1.createSlice)({
             saveState(state.docs);
             sendMessage(state);
         },
+        updateDocBlocks: (state, action) => {
+            state.docs.blocks = action.payload;
+            saveState(state.docs);
+            sendMessage(state);
+        },
         updateTitle: (state, action) => {
             state.docs.title = action.payload;
             saveState(state.docs);
@@ -51,6 +56,6 @@ exports.docSlice = (0, toolkit_1.createSlice)({
         },
     },
 });
-_a = exports.docSlice.actions, exports.addDocs = _a.addDocs, exports.updateDocs = _a.updateDocs, exports.updateTitle = _a.updateTitle, exports.setState = _a.setState;
+_a = exports.docSlice.actions, exports.addDocs = _a.addDocs, exports.updateDocs = _a.updateDocs, exports.updateTitle = _a.updateTitle, exports.updateDocBlocks = _a.updateDocBlocks, exports.setState = _a.setState;
 exports.default = exports.docSlice.reducer;
 //# sourceMappingURL=docs.js.map

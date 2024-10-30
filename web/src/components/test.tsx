@@ -8,10 +8,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { AppState } from "../redux-store/docStore";
 import vscode from "../utils/VscodeSendMessage";
 import { updateSession } from "../redux-store/session";
-import { addDocs, updateDocBlocks } from '../redux-store/docs';
 import AddSnippet from "./AddSnippetModel/AddSnippet";
-import { text } from "stream/consumers";
-
+const [isAddModel, setIsAddModel] = useState(false)
 
 interface LanguageMap {
     [key: string]: string;
@@ -51,9 +49,6 @@ export default function Highlighter({ item: initialItem }: HighlighterProps) {
 
         return state.session.session;
     });
-    const docs = useSelector((state: AppState) => {
-        return state?.docs.docs;
-    });
     const dispatch = useDispatch()
 
     const [listening, setListening] = useState(false);
@@ -81,26 +76,14 @@ export default function Highlighter({ item: initialItem }: HighlighterProps) {
             const message = event.data;
 
             if (message.command === 'updatedBlock') {
-                console.log("updatedBlock", message.data)
                 handleUpdate(message.data)
 
                 setListening(false);
             }
 
             if (message.command === 'select') {
-                let newItem = {
-                    ...item, data: {
-                        ...item.data, text: message.data.text, path: message.data.file,
-                        line_start: message.data.line,
-                        line_end: message.data.line2,
-                    }
-                };
-
-
-                setItem(newItem)
-
-
-                handleUpdate(newItem)
+                item.data.text = message.data.text
+                handleUpdate(item)
                 setListening(false);
             }
         };
@@ -116,10 +99,7 @@ export default function Highlighter({ item: initialItem }: HighlighterProps) {
     useEffect(() => {
         session.blocks.forEach((block) => {
             if (block.id === item.id) {
-                if (!block.obsolete) {
-                    setUpdated(true)
-                }
-
+                setUpdated(true)
                 setItem(block)
             }
         })
@@ -143,36 +123,6 @@ export default function Highlighter({ item: initialItem }: HighlighterProps) {
 
         dispatch(updateSession(updatedBlocks));
     };
-
-    const addToDocs = () => {
-        function updateBlock(blocks: any, targetId: string, newData: Snippet) {
-            console.log(newData, "[][][][][][][][][][")
-            return blocks.map(block => {
-                // Check if the block is of type 'snippet' and has a matching ID
-                if (block.type === 'snippet' && block.id === targetId) {
-                    return {
-                        ...block,
-                        data: {
-                            ...block.data,
-                            ...newData // Update only the fields in data that are provided in newData
-                        }
-                    };
-                }
-                // Return the block unmodified if conditions don't match
-                return block;
-            });
-        }
-        let blocks = updateBlock(docs.blocks, item.id, {
-            path: item.data.path,
-            line_start: item.data.line_start,
-            line_end: item.data.line_end,
-            text: item.data.text
-        })
-
-        dispatch(updateDocBlocks(blocks))
-        setUpdated(false)
-
-    }
 
     const customStyle = {
         ...oneDark,
@@ -297,10 +247,7 @@ export default function Highlighter({ item: initialItem }: HighlighterProps) {
                             <button className="px-4 py-2 rounded-md text-gray-300 hover:bg-zinc-800 transition-colors duration-200 border border-zinc-700">
                                 Remove
                             </button>
-                            <button onClick={() => {
-                                setIsAddModel(true)
-                                sendMessage("focusEditor")
-                            }} className="px-4 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700 transition-colors duration-200">
+                            <button className="px-4 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700 transition-colors duration-200">
                                 Reselect
                             </button>
                         </div>
@@ -320,7 +267,7 @@ export default function Highlighter({ item: initialItem }: HighlighterProps) {
                             }} className="px-4 py-2 rounded-xl text-gray-300  hover:bg-gray-600 transition-colors duration-200 border ">
                                 Reselect
                             </button>
-                            <button onClick={() => addToDocs()} className="px-4 py-2 rounded-xl bg-blue-600 text-white hover:bg-blue-700 transition-colors duration-200">
+                            <button className="px-4 py-2 rounded-xl bg-blue-600 text-white hover:bg-blue-700 transition-colors duration-200">
                                 Add to Doc
                             </button>
                         </div>

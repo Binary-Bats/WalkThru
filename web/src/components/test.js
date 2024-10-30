@@ -36,8 +36,8 @@ const languageMap_json_1 = __importDefault(require("./../utils/languageMap.json"
 const react_redux_1 = require("react-redux");
 const VscodeSendMessage_1 = __importDefault(require("../utils/VscodeSendMessage"));
 const session_1 = require("../redux-store/session");
-const docs_1 = require("../redux-store/docs");
 const AddSnippet_1 = __importDefault(require("./AddSnippetModel/AddSnippet"));
+const [isAddModel, setIsAddModel] = (0, react_1.useState)(false);
 function detectLanguage(fileName) {
     const ext = fileName.slice(fileName.lastIndexOf('.')).toLowerCase();
     const language = languageMap_json_1.default;
@@ -46,9 +46,6 @@ function detectLanguage(fileName) {
 function Highlighter({ item: initialItem }) {
     const session = (0, react_redux_1.useSelector)((state) => {
         return state.session.session;
-    });
-    const docs = (0, react_redux_1.useSelector)((state) => {
-        return state?.docs.docs;
     });
     const dispatch = (0, react_redux_1.useDispatch)();
     const [listening, setListening] = (0, react_1.useState)(false);
@@ -69,20 +66,12 @@ function Highlighter({ item: initialItem }) {
         const handleMessage = (event) => {
             const message = event.data;
             if (message.command === 'updatedBlock') {
-                console.log("updatedBlock", message.data);
                 handleUpdate(message.data);
                 setListening(false);
             }
             if (message.command === 'select') {
-                let newItem = {
-                    ...item, data: {
-                        ...item.data, text: message.data.text, path: message.data.file,
-                        line_start: message.data.line,
-                        line_end: message.data.line2,
-                    }
-                };
-                setItem(newItem);
-                handleUpdate(newItem);
+                item.data.text = message.data.text;
+                handleUpdate(item);
                 setListening(false);
             }
         };
@@ -95,9 +84,7 @@ function Highlighter({ item: initialItem }) {
     (0, react_1.useEffect)(() => {
         session.blocks.forEach((block) => {
             if (block.id === item.id) {
-                if (!block.obsolete) {
-                    setUpdated(true);
-                }
+                setUpdated(true);
                 setItem(block);
             }
         });
@@ -115,33 +102,6 @@ function Highlighter({ item: initialItem }) {
             updatedBlocks = [...session.blocks, data];
         }
         dispatch((0, session_1.updateSession)(updatedBlocks));
-    };
-    const addToDocs = () => {
-        function updateBlock(blocks, targetId, newData) {
-            console.log(newData, "[][][][][][][][][][");
-            return blocks.map(block => {
-                // Check if the block is of type 'snippet' and has a matching ID
-                if (block.type === 'snippet' && block.id === targetId) {
-                    return {
-                        ...block,
-                        data: {
-                            ...block.data,
-                            ...newData // Update only the fields in data that are provided in newData
-                        }
-                    };
-                }
-                // Return the block unmodified if conditions don't match
-                return block;
-            });
-        }
-        let blocks = updateBlock(docs.blocks, item.id, {
-            path: item.data.path,
-            line_start: item.data.line_start,
-            line_end: item.data.line_end,
-            text: item.data.text
-        });
-        dispatch((0, docs_1.updateDocBlocks)(blocks));
-        setUpdated(false);
     };
     const customStyle = {
         ...prism_1.oneDark,
@@ -251,10 +211,7 @@ function Highlighter({ item: initialItem }) {
                             <button className="px-4 py-2 rounded-md text-gray-300 hover:bg-zinc-800 transition-colors duration-200 border border-zinc-700">
                                 Remove
                             </button>
-                            <button onClick={() => {
-                setIsAddModel(true);
-                sendMessage("focusEditor");
-            }} className="px-4 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700 transition-colors duration-200">
+                            <button className="px-4 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700 transition-colors duration-200">
                                 Reselect
                             </button>
                         </div>
@@ -274,7 +231,7 @@ function Highlighter({ item: initialItem }) {
             }} className="px-4 py-2 rounded-xl text-gray-300  hover:bg-gray-600 transition-colors duration-200 border ">
                                 Reselect
                             </button>
-                            <button onClick={() => addToDocs()} className="px-4 py-2 rounded-xl bg-blue-600 text-white hover:bg-blue-700 transition-colors duration-200">
+                            <button className="px-4 py-2 rounded-xl bg-blue-600 text-white hover:bg-blue-700 transition-colors duration-200">
                                 Add to Doc
                             </button>
                         </div>
@@ -346,4 +303,4 @@ function Highlighter({ item: initialItem }) {
 // </div>
 //     );
 // }
-//# sourceMappingURL=Highlighter.js.map
+//# sourceMappingURL=test.js.map

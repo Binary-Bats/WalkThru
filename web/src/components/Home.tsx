@@ -10,6 +10,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { addDocs, updateDocs, updateTitle } from '../redux-store/docs';
 import path from 'path';
 import { text } from 'stream/consumers';
+import { AppState } from '../redux-store/docStore';
+import { StateDebugger } from '../redux-store/stateDebugger';
 
 
 
@@ -34,9 +36,9 @@ type CodeDocs =
 
 const Home = () => {
 
-    const docs = useSelector((state: any) => {
+    const docs = useSelector((state: AppState) => {
         console.log("State: ", state); // Check the state shape
-        return state?.docs;
+        return state?.docs.docs;
     });
     const dispatch = useDispatch()
 
@@ -61,6 +63,7 @@ const Home = () => {
     };
 
     useEffect(() => {
+
         if (!listening) return;
         // Listen for messages from the extension
         const handleMessage = (event: MessageEvent) => {
@@ -143,6 +146,7 @@ const Home = () => {
 
     return (
         <div className="flex mt-5 mb-5 justify-center w-full">
+            <StateDebugger />
             <div className="w-[90%] rounded-lg shadow-lg">
                 <div className="flex items-center justify-between mb-2">
                     <input
@@ -158,7 +162,7 @@ const Home = () => {
 
                 <div className="border-b border-gray-600 mb-4"></div>
                 {docs?.blocks?.map((item: any) => (
-                    item.type === "snippet" ? <Highlighter key={item.id} filePath={item.data.path} startNumber={item?.data.line_start} endLine={item?.data.line_end} content={item?.data.text} /> : <FilePath key={item.id} type={item.data.contextValue} path={item.data.path} />
+                    item.type === "snippet" ? <Highlighter key={item.id} item={item} /> : <FilePath key={item.id} type={item.data.contextValue} path={item.data.path} />
                 ))}
 
                 <div className="inline-flex space-x-2 ring-2 ring-blue-500 rounded-lg p-2">

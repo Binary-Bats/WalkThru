@@ -297,7 +297,7 @@ export async function verifySnippet(snippetBlock: SnippetBlock) {
   return snippetBlock;
 }
 
-async function updateSnippet(snippetBlock) {
+export async function updateSnippet(snippetBlock) {
   //console.time("Execution Time");
   const outdatedSnippet = snippetBlock.data.text.split("\n");
   let multi = false;
@@ -309,7 +309,18 @@ async function updateSnippet(snippetBlock) {
   const lineStart = snippetBlock.data["line_start"];
   const lineEnd = snippetBlock.data["line_end"];
   const codeFile = snippetBlock.data.path;
-  const fileContent = fs.readFileSync(codeFile, "utf8");
+
+  // Get workspace
+  const workspaceFolders = vscode.workspace.workspaceFolders;
+  if (!workspaceFolders?.length) {
+    throw new Error("No workspace folder found");
+  }
+
+  // Construct file path
+  const workspaceRoot = workspaceFolders[0].uri;
+  const fileUri = vscode.Uri.joinPath(workspaceRoot, codeFile);
+
+  const fileContent = fs.readFileSync(fileUri.fsPath, "utf8");
 
   let bestMatchArray = await findBestMatch(
     fileContent,

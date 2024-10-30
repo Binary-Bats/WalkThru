@@ -29,8 +29,8 @@
   },
   "source": "src/index.tsx",
   "scripts": {
-    "start": "parcel ",
-    "build": "parcel build",
+    "start": "parcel --no-source-maps",
+    "build": "parcel --no-source-maps build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },

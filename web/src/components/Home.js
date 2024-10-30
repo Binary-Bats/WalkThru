@@ -36,10 +36,11 @@ const FilePath_1 = __importDefault(require("./FilePath/FilePath"));
 const AddSnippet_1 = __importDefault(require("./AddSnippetModel/AddSnippet"));
 const react_redux_1 = require("react-redux");
 const docs_1 = require("../redux-store/docs");
+const stateDebugger_1 = require("../redux-store/stateDebugger");
 const Home = () => {
     const docs = (0, react_redux_1.useSelector)((state) => {
         console.log("State: ", state); // Check the state shape
-        return state?.docs;
+        return state?.docs.docs;
     });
     const dispatch = (0, react_redux_1.useDispatch)();
     const [title, setTitle] = (0, react_1.useState)(docs.title);
@@ -130,6 +131,7 @@ const Home = () => {
         }
     };
     return (<div className="flex mt-5 mb-5 justify-center w-full">
+            <stateDebugger_1.StateDebugger />
             <div className="w-[90%] rounded-lg shadow-lg">
                 <div className="flex items-center justify-between mb-2">
                     <input type="text" value={title} onChange={handleTitleChange} className={`bg-transparent text-white text-[4rem] font-bold focus:outline-none ${isEditing ? 'border-blue-500' : 'border-transparent'} pb-1 w-full ${!isEditing && 'cursor-not-allowed'}`} readOnly={!isEditing}/>
@@ -137,7 +139,7 @@ const Home = () => {
                 </div>
 
                 <div className="border-b border-gray-600 mb-4"></div>
-                {docs?.blocks?.map((item) => (item.type === "snippet" ? <Highlighter_1.default key={item.id} filePath={item.data.path} startNumber={item?.data.line_start} endLine={item?.data.line_end} content={item?.data.text}/> : <FilePath_1.default key={item.id} type={item.data.contextValue} path={item.data.path}/>))}
+                {docs?.blocks?.map((item) => (item.type === "snippet" ? <Highlighter_1.default key={item.id} item={item}/> : <FilePath_1.default key={item.id} type={item.data.contextValue} path={item.data.path}/>))}
 
                 <div className="inline-flex space-x-2 ring-2 ring-blue-500 rounded-lg p-2">
                     <Button_1.default onClick={() => {

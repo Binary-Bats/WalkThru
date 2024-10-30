@@ -45,6 +45,11 @@ export const docSlice = createSlice({
       saveState(state.docs);
       sendMessage(state);
     },
+    updateDocBlocks: (state, action) => {
+      state.docs.blocks = action.payload;
+      saveState(state.docs);
+      sendMessage(state);
+    },
     updateTitle: (state, action) => {
       state.docs.title = action.payload;
       saveState(state.docs);
@@ -56,5 +61,11 @@ export const docSlice = createSlice({
   },
 });
 
-export const { addDocs, updateDocs, updateTitle, setState } = docSlice.actions;
+export const {
+  addDocs,
+  updateDocs,
+  updateTitle,
+  updateDocBlocks,
+  setState,
+} = docSlice.actions;
 export default docSlice.reducer;

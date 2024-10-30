@@ -1,1 +1,1 @@
-{"version":3,"file":"docStore.js","sourceRoot":"","sources":["docStore.ts"],"names":[],"mappings":";;;;;AAAA,8CAAkD;AAClD,kDAAiC;AAEjC,kBAAe,IAAA,wBAAc,EAAC;IAC5B,OAAO,EAAE,cAAW;CACrB,CAAC,CAAC"}
+{"version":3,"file":"docStore.js","sourceRoot":"","sources":["docStore.ts"],"names":[],"mappings":";;;;;AAAA,WAAW;AACX,8CAAmE;AACnE,kDAAiC;AACjC,wDAAuC;AAEvC,MAAM,WAAW,GAAG,IAAA,yBAAe,EAAC;IAClC,IAAI,EAAE,cAAW;IACjB,OAAO,EAAE,iBAAc;CACxB,CAAC,CAAC;AAEH,MAAM,KAAK,GAAG,IAAA,wBAAc,EAAC;IAC3B,OAAO,EAAE,WAAW;CACrB,CAAC,CAAC;AAGH,kBAAe,KAAK,CAAC"}

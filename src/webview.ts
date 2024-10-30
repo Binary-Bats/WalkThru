@@ -1,6 +1,7 @@
 import * as vscode from "vscode";
 import generateFileTreeJson from "./fileStructure";
 import { saveDocsToFile } from "./saveD";
+import { updateSnippet } from "./utils";
 
 interface WebviewMessage {
   command: string;
@@ -89,6 +90,9 @@ export default class MyPanel {
               );
             }
             break;
+          case "update":
+            const block = await updateSnippet(message.data);
+            this.sendMsgToWebview("updatedBlock", block);
 
           case "ready":
             // When webview signals it's ready, send initial data if available
