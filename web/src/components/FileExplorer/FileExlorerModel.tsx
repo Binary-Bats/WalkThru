@@ -5,12 +5,11 @@ import vscode from '../../utils/VscodeSendMessage';
 import filterFileStructure from './FilterData';
 
 type Snippet = {
-    file: string,
-    line: number,
+    path: string,
+    line_start: number,
     text: string
-    line2: number
+    line_end: number
 }
-
 type Path = {
     contextValue: string,
     label: string,

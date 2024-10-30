@@ -8,15 +8,17 @@ import FilePath from './FilePath/FilePath';
 import AddSnippet from './AddSnippetModel/AddSnippet';
 import { useDispatch, useSelector } from 'react-redux';
 import { addDocs, updateDocs, updateTitle } from '../redux-store/docs';
+import path from 'path';
+import { text } from 'stream/consumers';
 
 
 
 
 type Snippet = {
-    file: string,
-    line: number,
+    path: string,
+    line_start: number,
     text: string
-    line2: number
+    line_end: number
 }
 
 type Path = {
@@ -27,8 +29,8 @@ type Path = {
 }
 
 type CodeDocs =
-    | { id: string, type: "snippet", data: Snippet }
-    | { id: string, type: "path", data: Path };
+    | { id: string, outdated: boolean, obsolete: boolean, type: "snippet", data: Snippet }
+    | { id: string, obsolete: boolean, type: "path", data: Path };
 
 const Home = () => {
 
@@ -80,14 +82,26 @@ const Home = () => {
     }, [listening]);
 
 
-    const handleAddDocs = (data: Path | Snippet, type: "snippet" | "path") => {
+    const handleAddDocs = (data: any, type: "snippet" | "path") => {
         if (data) {
             console.log("------------------23", data)
             let docItem: CodeDocs;
             if (type === "snippet") {
-                docItem = { id: uuidv4(), type, data: data as Snippet };
+                const codeData = {
+                    path: data.file,
+                    line_start: data.line,
+                    line_end: data.line2,
+                    text: data.text
+                }
+                docItem = {
+                    id: uuidv4(), "outdated": false,
+                    "obsolete": false, type, data: codeData
+                };
             } else {
-                docItem = { id: uuidv4(), type, data: data as Path };
+                docItem = {
+                    id: uuidv4(),
+                    "obsolete": false, type, data: data as Path
+                };
             }
             if (docs?.blocks) {
                 dispatch(updateDocs(docItem))
@@ -144,7 +158,7 @@ const Home = () => {
 
                 <div className="border-b border-gray-600 mb-4"></div>
                 {docs?.blocks?.map((item: any) => (
-                    item.type === "snippet" ? <Highlighter key={item.id} filePath={item.data.file} startNumber={item?.data.line} endLine={item?.data.line2} content={item?.data.text} /> : <FilePath key={item.id} type={item.data.contextValue} path={item.data.path} />
+                    item.type === "snippet" ? <Highlighter key={item.id} filePath={item.data.path} startNumber={item?.data.line_start} endLine={item?.data.line_end} content={item?.data.text} /> : <FilePath key={item.id} type={item.data.contextValue} path={item.data.path} />
                 ))}
 
                 <div className="inline-flex space-x-2 ring-2 ring-blue-500 rounded-lg p-2">

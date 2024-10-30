@@ -77,10 +77,22 @@ const Home = () => {
             console.log("------------------23", data);
             let docItem;
             if (type === "snippet") {
-                docItem = { id: (0, uuid_1.v4)(), type, data: data };
+                const codeData = {
+                    path: data.file,
+                    line_start: data.line,
+                    line_end: data.line2,
+                    text: data.text
+                };
+                docItem = {
+                    id: (0, uuid_1.v4)(), "outdated": false,
+                    "obsolete": false, type, data: codeData
+                };
             }
             else {
-                docItem = { id: (0, uuid_1.v4)(), type, data: data };
+                docItem = {
+                    id: (0, uuid_1.v4)(),
+                    "obsolete": false, type, data: data
+                };
             }
             if (docs?.blocks) {
                 dispatch((0, docs_1.updateDocs)(docItem));
@@ -125,7 +137,7 @@ const Home = () => {
                 </div>
 
                 <div className="border-b border-gray-600 mb-4"></div>
-                {docs?.blocks?.map((item) => (item.type === "snippet" ? <Highlighter_1.default key={item.id} filePath={item.data.file} startNumber={item?.data.line} endLine={item?.data.line2} content={item?.data.text}/> : <FilePath_1.default key={item.id} type={item.data.contextValue} path={item.data.path}/>))}
+                {docs?.blocks?.map((item) => (item.type === "snippet" ? <Highlighter_1.default key={item.id} filePath={item.data.path} startNumber={item?.data.line_start} endLine={item?.data.line_end} content={item?.data.text}/> : <FilePath_1.default key={item.id} type={item.data.contextValue} path={item.data.path}/>))}
 
                 <div className="inline-flex space-x-2 ring-2 ring-blue-500 rounded-lg p-2">
                     <Button_1.default onClick={() => {

@@ -4,6 +4,7 @@ import MyTreeViewDataProvider from "./treeView";
 import generateFileTreeJson from "./fileStructure";
 import path from "path";
 import { WalkthruFileWatcher } from "./walkthruFileWatcher";
+import { processJson } from "./PcessDocs";
 
 const fs = require("fs");
 export function activate(context: vscode.ExtensionContext) {
@@ -25,7 +26,7 @@ export function activate(context: vscode.ExtensionContext) {
 
   const openWalkthru = vscode.commands.registerCommand(
     "walkthru.openWalkthru",
-    (element: any) => {
+    async (element: any) => {
       const filePath: string = path.join(
         vscode.workspace.rootPath as string,
         ".walkthru",
@@ -33,7 +34,8 @@ export function activate(context: vscode.ExtensionContext) {
       );
       try {
         const fileContent: string = fs.readFileSync(filePath, "utf-8");
-        const walkThruDoc: any = JSON.parse(fileContent);
+        const processedData = await processJson(fileContent);
+        const walkThruDoc: any = processedData;
         new MyPanel(context, walkThruDoc);
       } catch (error) {
         console.error("Error reading walkthru file:", error);
