@@ -2,11 +2,14 @@ import * as vscode from "vscode";
 import generateFileTreeJson from "./fileStructure";
 import { saveDocsToFile } from "./saveD";
 import { updateSnippet } from "./utils";
-
+import { processJson } from "./PcessDocs";
 interface WebviewMessage {
   command: string;
   data: any;
 }
+let searchCancelToken: vscode.CancellationTokenSource | undefined;
+import { searchStringParallel } from "./seacrh";
+import { openAndSelectLinesInDocument } from "./PcessDocs";
 
 export default class MyPanel {
   private panel: vscode.WebviewPanel;
@@ -78,6 +81,9 @@ export default class MyPanel {
 
           case "saveDocs":
             console.log("saving docs:", message.data);
+
+            this.initialData = message.data.docs;
+
             try {
               await saveDocsToFile(message.data.docs);
               await vscode.window.showInformationMessage(
@@ -93,6 +99,60 @@ export default class MyPanel {
           case "update":
             const block = await updateSnippet(message.data);
             this.sendMsgToWebview("updatedBlock", block);
+            break;
+          case "search":
+            if (searchCancelToken) {
+              searchCancelToken.cancel();
+            }
+            searchCancelToken = new vscode.CancellationTokenSource();
+
+            const searchGenerator = searchStringParallel(
+              message.text,
+              this.panel.webview,
+              searchCancelToken.token
+            );
+
+            try {
+              while (true) {
+                const { value: results, done } = await searchGenerator.next();
+
+                if (searchCancelToken.token.isCancellationRequested) {
+                  break;
+                }
+
+                if (done) {
+                  this.panel.webview.postMessage({
+                    command: "searchComplete",
+                  });
+                  break;
+                }
+
+                this.panel.webview.postMessage({
+                  command: "searchResults",
+                  workspace: this.getWorkspaceName(),
+                  results: results,
+                  isIncremental: true,
+                });
+              }
+            } catch (error) {
+              if (!searchCancelToken.token.isCancellationRequested) {
+                this.panel.webview.postMessage({
+                  command: "searchError",
+                  error: error.message,
+                });
+              }
+            }
+            break;
+          case "openDocs":
+            await vscode.commands.executeCommand(
+              "workbench.action.focusFirstEditorGroup"
+            );
+            await openAndSelectLinesInDocument(
+              message.data.path,
+              message.data.startLine || undefined,
+              message.data.endLine || undefined
+            );
+            break;
 
           case "ready":
             // When webview signals it's ready, send initial data if available
@@ -109,6 +169,23 @@ export default class MyPanel {
         vscode.window.showErrorMessage("Error processing webview command");
       }
     });
+    this.panel.onDidChangeViewState(async () => {
+      const data = await processJson(this.initialData);
+      this.updateData(data);
+    });
+  }
+
+  public getWorkspaceName() {
+    const workspaceFolders = vscode.workspace.workspaceFolders;
+    if (workspaceFolders && workspaceFolders.length > 0) {
+      // Get the name of the first workspace folder
+      const workspaceName = workspaceFolders[0].name;
+      console.log("Workspace Name:", workspaceName);
+      return workspaceName;
+    } else {
+      console.log("No workspace folder open.");
+      return null;
+    }
   }
 
   private render() {

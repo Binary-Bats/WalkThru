@@ -41,7 +41,7 @@ const AddSnippet_1 = __importDefault(require("./AddSnippetModel/AddSnippet"));
 function detectLanguage(fileName) {
     const ext = fileName.slice(fileName.lastIndexOf('.')).toLowerCase();
     const language = languageMap_json_1.default;
-    return language[ext] || "Unknown language";
+    return language[ext].toLowerCase() || "Unknown language";
 }
 function Highlighter({ item: initialItem }) {
     const session = (0, react_redux_1.useSelector)((state) => {
@@ -55,6 +55,13 @@ function Highlighter({ item: initialItem }) {
     const [item, setItem] = (0, react_1.useState)(initialItem);
     const [updated, setUpdated] = (0, react_1.useState)(false);
     const [isAddModel, setIsAddModel] = (0, react_1.useState)(false);
+    // Update local state when docs state changes
+    // useEffect(() => {
+    //     const updatedBlock = docs.blocks.find(block => block.id === item.id);
+    //     if (updatedBlock && JSON.stringify(updatedBlock) !== JSON.stringify(item)) {
+    //         setItem(updatedBlock);
+    //     }
+    // }, [docs.blocks, item.id]);
     const sendMessage = (command, data) => {
         VscodeSendMessage_1.default?.postMessage({
             command: command,
@@ -63,6 +70,18 @@ function Highlighter({ item: initialItem }) {
         setListening(true);
     };
     (0, react_1.useEffect)(() => {
+        console.log('Highlighter item changed:', initialItem);
+        session.blocks.forEach((block) => {
+            if (block.id === item.id) {
+                if (!block.obsolete) {
+                }
+                setItem(block);
+            }
+            setItem(initialItem);
+        });
+    }, [initialItem]);
+    console.log('Highlighter render:', item);
+    (0, react_1.useEffect)(() => {
         if (!listening)
             return;
         // Listen for messages from the extension
@@ -70,6 +89,9 @@ function Highlighter({ item: initialItem }) {
             const message = event.data;
             if (message.command === 'updatedBlock') {
                 console.log("updatedBlock", message.data);
+                if (!message.data.obsolete) {
+                    setUpdated(true);
+                }
                 handleUpdate(message.data);
                 setListening(false);
             }
@@ -82,7 +104,7 @@ function Highlighter({ item: initialItem }) {
                     }
                 };
                 setItem(newItem);
-                handleUpdate(newItem);
+                handleUpdate(newItem, message.command);
                 setListening(false);
             }
         };
@@ -96,27 +118,54 @@ function Highlighter({ item: initialItem }) {
         session.blocks.forEach((block) => {
             if (block.id === item.id) {
                 if (!block.obsolete) {
-                    setUpdated(true);
                 }
                 setItem(block);
             }
         });
     }, [session]);
-    const handleUpdate = (data) => {
-        data.outdated = false;
-        const existingBlockIndex = session.blocks.findIndex(block => block.id === data.id);
-        let updatedBlocks;
-        if (existingBlockIndex !== -1) {
-            // Update existing block
-            updatedBlocks = session.blocks.map((block, index) => index === existingBlockIndex ? data : block);
+    const handlePrevious = () => {
+        const foundBlock = docs.blocks.find((block) => block.id === item.id);
+        if (foundBlock) {
+            setItem((prevItem) => {
+                return { ...prevItem, ...foundBlock };
+            });
+            setUpdated(false);
+            console.log('Updated state:', updated); // Add a console log here
+            handleUpdate(foundBlock);
+        }
+    };
+    (0, react_1.useEffect)(() => {
+        console.log('Updated state:', updated);
+    }, [updated]);
+    const handleRemove = (item) => {
+        dispatch((0, docs_1.deleteBlocksById)(item.id));
+    };
+    const handleUpdate = (data, command) => {
+        if (data.obsolete && command === "select") {
+            const updatedBlocks = session.blocks.filter(block => block.id !== data.id);
+            dispatch((0, session_1.updateSession)(updatedBlocks));
+            let newItem = {
+                ...item, obsolete: false, data: data.data
+            };
+            setItem(() => newItem);
+            addToDocs(newItem);
         }
         else {
-            // Add new block
-            updatedBlocks = [...session.blocks, data];
+            data.outdated = false;
+            const existingBlockIndex = session.blocks.findIndex(block => block.id === data.id);
+            let updatedBlocks;
+            if (existingBlockIndex !== -1) {
+                // Update existing block
+                updatedBlocks = session.blocks.map((block, index) => index === existingBlockIndex ? data : block);
+            }
+            else {
+                // Add new block
+                updatedBlocks = [...session.blocks, data];
+            }
+            dispatch((0, session_1.updateSession)(updatedBlocks));
         }
-        dispatch((0, session_1.updateSession)(updatedBlocks));
     };
-    const addToDocs = () => {
+    const addToDocs = (item) => {
         function updateBlock(blocks, targetId, newData) {
             console.log(newData, "[][][][][][][][][][");
             return blocks.map(block => {
@@ -124,6 +173,8 @@ function Highlighter({ item: initialItem }) {
                 if (block.type === 'snippet' && block.id === targetId) {
                     return {
                         ...block,
+                        obsolete: false,
+                        outdated: false,
                         data: {
                             ...block.data,
                             ...newData // Update only the fields in data that are provided in newData
@@ -248,7 +299,7 @@ function Highlighter({ item: initialItem }) {
                 {item.obsolete ? <div className="flex justify-center px-1 mb-3  ">
                     <div className="  justify-end w-[95%] rounded-2xl px-8 py-4 text-lg flex items-center" style={headerStyle}>
                         <div className="flex gap-3">
-                            <button className="px-4 py-2 rounded-md text-gray-300 hover:bg-zinc-800 transition-colors duration-200 border border-zinc-700">
+                            <button onClick={() => handleRemove(item)} className="px-4 py-2 rounded-md text-gray-300 hover:bg-zinc-800 transition-colors duration-200 border border-zinc-700">
                                 Remove
                             </button>
                             <button onClick={() => {
@@ -263,7 +314,7 @@ function Highlighter({ item: initialItem }) {
                 </div> : ""}
                 {updated ? <div className="flex justify-center px-1 mb-3  ">
                     <div className=" w-[95%] rounded-2xl px-8 py-4 text-lg flex justify-between items-center p-4" style={headerStyle}>
-                        <button className="px-4 py-2 rounded-xl text-gray-300  hover:bg-gray-600 transition-colors duration-200 border ">
+                        <button onClick={() => handlePrevious()} className="px-4 py-2 rounded-xl text-gray-300  hover:bg-gray-600 transition-colors duration-200 border ">
                             Previous
                         </button>
 
@@ -271,10 +322,11 @@ function Highlighter({ item: initialItem }) {
                             <button onClick={() => {
                 setIsAddModel(true);
                 sendMessage("focusEditor");
+                sendMessage("openDocs", { path: item.data.path, startLine: item.data.line_start, endLine: item.data.line_end });
             }} className="px-4 py-2 rounded-xl text-gray-300  hover:bg-gray-600 transition-colors duration-200 border ">
                                 Reselect
                             </button>
-                            <button onClick={() => addToDocs()} className="px-4 py-2 rounded-xl bg-blue-600 text-white hover:bg-blue-700 transition-colors duration-200">
+                            <button onClick={() => addToDocs(item)} className="px-4 py-2 rounded-xl bg-blue-600 text-white hover:bg-blue-700 transition-colors duration-200">
                                 Add to Doc
                             </button>
                         </div>

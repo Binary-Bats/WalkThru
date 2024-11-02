@@ -6,7 +6,7 @@ type Props = {
     path: string,
     startLine?: number,
     endLine?: number,
-    type: "snippet" | "file" | "folder"
+    type: string
 }
 
 

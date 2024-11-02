@@ -4,23 +4,26 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 var _a;
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.setState = exports.updateDocBlocks = exports.updateTitle = exports.updateDocs = exports.addDocs = exports.docSlice = void 0;
+exports.deleteBlocksById = exports.setState = exports.updateDocBlocks = exports.updateTitle = exports.updateDocs = exports.addDocs = exports.docSlice = void 0;
 const toolkit_1 = require("@reduxjs/toolkit");
 const VscodeSendMessage_1 = __importDefault(require("../utils/VscodeSendMessage"));
 const uuid_1 = require("uuid");
-// Helper function to load docs from session storage
+// Helper functions
 const loadState = () => {
     const previousState = VscodeSendMessage_1.default?.getState();
     return (previousState?.docs ||
-        window.initialData || { id: (0, uuid_1.v4)(), title: "Untitled Docs", blocks: [] });
-};
-const sendMessage = (docs) => {
-    VscodeSendMessage_1.default?.postMessage({
-        command: "saveDocs",
-        data: JSON.parse(JSON.stringify(docs)),
+        window.initialData || {
+        id: (0, uuid_1.v4)(),
+        title: "Untitled Docs",
+        blocks: [],
     });
 };
-// Helper function to save docs to session storage
+const sendMessage = (state) => {
+    VscodeSendMessage_1.default?.postMessage({
+        command: "saveDocs",
+        data: JSON.parse(JSON.stringify(state)),
+    });
+};
 const saveState = (docs) => {
     VscodeSendMessage_1.default?.setState({ docs });
 };
@@ -32,30 +35,103 @@ exports.docSlice = (0, toolkit_1.createSlice)({
     },
     reducers: {
         addDocs: (state, action) => {
-            state.docs = action.payload;
-            saveState(state.docs);
-            sendMessage(state);
+            // Create new state object
+            const newDocs = {
+                ...action.payload,
+                id: state.docs.id,
+            };
+            // Return new state
+            const newState = {
+                ...state,
+                docs: newDocs,
+            };
+            saveState(newDocs);
+            sendMessage(newState);
+            return newState;
         },
         updateDocs: (state, action) => {
-            state.docs.blocks.push(action.payload);
-            saveState(state.docs);
-            sendMessage(state);
+            // Create new blocks array with new block
+            const newBlocks = [...state.docs.blocks, action.payload];
+            // Create new state with updated blocks
+            const newState = {
+                ...state,
+                docs: {
+                    ...state.docs,
+                    blocks: newBlocks,
+                },
+            };
+            saveState(newState.docs);
+            sendMessage(newState);
+            return newState;
         },
         updateDocBlocks: (state, action) => {
-            state.docs.blocks = action.payload;
-            saveState(state.docs);
-            sendMessage(state);
+            // Create new state with new blocks array
+            const newState = {
+                ...state,
+                docs: {
+                    ...state.docs,
+                    blocks: action.payload,
+                },
+            };
+            saveState(newState.docs);
+            sendMessage(newState);
+            return newState;
+        },
+        deleteBlocksById: (state, action) => {
+            // Filter blocks immutably
+            const newBlocks = state.docs.blocks.filter((block) => block.id !== action.payload);
+            // Create new state with filtered blocks
+            const newState = {
+                ...state,
+                docs: {
+                    ...state.docs,
+                    blocks: newBlocks,
+                },
+            };
+            saveState(newState.docs);
+            sendMessage(newState);
+            return newState;
         },
         updateTitle: (state, action) => {
-            state.docs.title = action.payload;
-            saveState(state.docs);
-            sendMessage(state);
+            // Create new state with updated title
+            const newState = {
+                ...state,
+                docs: {
+                    ...state.docs,
+                    title: action.payload,
+                },
+            };
+            saveState(newState.docs);
+            sendMessage(newState);
+            return newState;
         },
         setState: (state, action) => {
-            state.docs = action.payload;
+            // Create entirely new state
+            const newState = {
+                ...state,
+                docs: action.payload,
+            };
+            saveState(newState.docs);
+            return newState;
         },
     },
 });
-_a = exports.docSlice.actions, exports.addDocs = _a.addDocs, exports.updateDocs = _a.updateDocs, exports.updateTitle = _a.updateTitle, exports.updateDocBlocks = _a.updateDocBlocks, exports.setState = _a.setState;
+// Message handler
+// export const useInitialize = () => {
+//   const dispatch = useDispatch();
+//   React.useEffect(() => {
+//     const handleMessage = (event: MessageEvent) => {
+//       console.log("Received message:", event.data);
+//       if (event.data.command === "initialData") {
+//         const docs = event.data.data;
+//         window.initialData = docs;
+//         dispatch(setState(docs));
+//       }
+//     };
+//     window.addEventListener("message", handleMessage);
+//     return () => window.removeEventListener("message", handleMessage);
+//   }, [dispatch]);
+// };
+_a = exports.docSlice.actions, exports.addDocs = _a.addDocs, exports.updateDocs = _a.updateDocs, exports.updateTitle = _a.updateTitle, exports.updateDocBlocks = _a.updateDocBlocks, exports.setState = _a.setState, exports.deleteBlocksById = _a.deleteBlocksById;
 exports.default = exports.docSlice.reducer;
 //# sourceMappingURL=docs.js.map

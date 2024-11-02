@@ -8,9 +8,9 @@ import { useDispatch, useSelector } from "react-redux";
 import { AppState } from "../redux-store/docStore";
 import vscode from "../utils/VscodeSendMessage";
 import { updateSession } from "../redux-store/session";
-import { addDocs, updateDocBlocks } from '../redux-store/docs';
+import { addDocs, deleteBlocksById, updateDocBlocks } from '../redux-store/docs';
 import AddSnippet from "./AddSnippetModel/AddSnippet";
-import { text } from "stream/consumers";
+
 
 
 interface LanguageMap {
@@ -21,7 +21,7 @@ function detectLanguage(fileName: string): string {
 
     const ext = fileName.slice(fileName.lastIndexOf('.')).toLowerCase();
     const language: LanguageMap = languageMap;
-    return language[ext] || "Unknown language";
+    return language[ext].toLowerCase() || "Unknown language";
 }
 
 
@@ -62,9 +62,15 @@ export default function Highlighter({ item: initialItem }: HighlighterProps) {
     const [isAddModel, setIsAddModel] = useState(false)
 
 
+    // Update local state when docs state changes
+    // useEffect(() => {
+    //     const updatedBlock = docs.blocks.find(block => block.id === item.id);
+    //     if (updatedBlock && JSON.stringify(updatedBlock) !== JSON.stringify(item)) {
+    //         setItem(updatedBlock);
+    //     }
+    // }, [docs.blocks, item.id]);
 
-
-    const sendMessage = (command: string, data?: CodeDocs) => {
+    const sendMessage = (command: string, data?: any) => {
         vscode?.postMessage({
             command: command,
             data: data
@@ -72,7 +78,22 @@ export default function Highlighter({ item: initialItem }: HighlighterProps) {
         setListening(true);
     };
 
+    useEffect(() => {
+        console.log('Highlighter item changed:', initialItem);
+        session.blocks.forEach((block) => {
+            if (block.id === item.id) {
+                if (!block.obsolete) {
 
+                }
+
+                setItem(block)
+            }
+            setItem(initialItem)
+        })
+
+    }, [initialItem]);
+
+    console.log('Highlighter render:', item);
     useEffect(() => {
 
         if (!listening) return;
@@ -82,6 +103,9 @@ export default function Highlighter({ item: initialItem }: HighlighterProps) {
 
             if (message.command === 'updatedBlock') {
                 console.log("updatedBlock", message.data)
+                if (!message.data.obsolete) {
+                    setUpdated(true);
+                }
                 handleUpdate(message.data)
 
                 setListening(false);
@@ -100,7 +124,7 @@ export default function Highlighter({ item: initialItem }: HighlighterProps) {
                 setItem(newItem)
 
 
-                handleUpdate(newItem)
+                handleUpdate(newItem, message.command)
                 setListening(false);
             }
         };
@@ -117,7 +141,7 @@ export default function Highlighter({ item: initialItem }: HighlighterProps) {
         session.blocks.forEach((block) => {
             if (block.id === item.id) {
                 if (!block.obsolete) {
-                    setUpdated(true)
+
                 }
 
                 setItem(block)
@@ -126,25 +150,60 @@ export default function Highlighter({ item: initialItem }: HighlighterProps) {
     }, [session])
 
 
-    const handleUpdate = (data: CodeDocs) => {
-        data.outdated = false;
-        const existingBlockIndex = session.blocks.findIndex(block => block.id === data.id);
-        let updatedBlocks;
-
-        if (existingBlockIndex !== -1) {
-            // Update existing block
-            updatedBlocks = session.blocks.map((block, index) =>
-                index === existingBlockIndex ? data : block
-            );
-        } else {
-            // Add new block
-            updatedBlocks = [...session.blocks, data];
+    const handlePrevious = () => {
+        const foundBlock = docs.blocks.find((block) => block.id === item.id);
+        if (foundBlock) {
+            setItem((prevItem) => {
+                return { ...prevItem, ...foundBlock };
+            });
+            setUpdated(false);
+            console.log('Updated state:', updated); // Add a console log here
+            handleUpdate(foundBlock);
         }
-
-        dispatch(updateSession(updatedBlocks));
     };
 
-    const addToDocs = () => {
+    useEffect(() => {
+        console.log('Updated state:', updated);
+    }, [updated]);
+    const handleRemove = (item: any) => {
+        dispatch(deleteBlocksById(item.id))
+    }
+    const handleUpdate = (data: CodeDocs, command?: string) => {
+        if (data.obsolete && command === "select") {
+            const updatedBlocks = session.blocks.filter(block => block.id !== data.id);
+            dispatch(updateSession(updatedBlocks));
+            let newItem = {
+                ...item, obsolete: false, data: data.data
+            };
+            setItem(() => newItem)
+            addToDocs(newItem)
+
+        } else {
+
+            data.outdated = false;
+            const existingBlockIndex = session.blocks.findIndex(block => block.id === data.id);
+            let updatedBlocks;
+
+            if (existingBlockIndex !== -1) {
+
+                // Update existing block
+                updatedBlocks = session.blocks.map((block, index) =>
+                    index === existingBlockIndex ? data : block
+                );
+            } else {
+                // Add new block
+                updatedBlocks = [...session.blocks, data];
+            }
+
+
+
+            dispatch(updateSession(updatedBlocks));
+        }
+
+
+    };
+
+    const addToDocs = (item?: any) => {
         function updateBlock(blocks: any, targetId: string, newData: Snippet) {
             console.log(newData, "[][][][][][][][][][")
             return blocks.map(block => {
@@ -152,6 +211,8 @@ export default function Highlighter({ item: initialItem }: HighlighterProps) {
                 if (block.type === 'snippet' && block.id === targetId) {
                     return {
                         ...block,
+                        obsolete: false,
+                        outdated: false,
                         data: {
                             ...block.data,
                             ...newData // Update only the fields in data that are provided in newData
@@ -294,7 +355,7 @@ export default function Highlighter({ item: initialItem }: HighlighterProps) {
                 {item.obsolete ? <div className="flex justify-center px-1 mb-3  " >
                     <div className="  justify-end w-[95%] rounded-2xl px-8 py-4 text-lg flex items-center" style={headerStyle}>
                         <div className="flex gap-3">
-                            <button className="px-4 py-2 rounded-md text-gray-300 hover:bg-zinc-800 transition-colors duration-200 border border-zinc-700">
+                            <button onClick={() => handleRemove(item)} className="px-4 py-2 rounded-md text-gray-300 hover:bg-zinc-800 transition-colors duration-200 border border-zinc-700">
                                 Remove
                             </button>
                             <button onClick={() => {
@@ -309,7 +370,7 @@ export default function Highlighter({ item: initialItem }: HighlighterProps) {
                 </div> : ""}
                 {updated ? <div className="flex justify-center px-1 mb-3  " >
                     <div className=" w-[95%] rounded-2xl px-8 py-4 text-lg flex justify-between items-center p-4" style={headerStyle}>
-                        <button className="px-4 py-2 rounded-xl text-gray-300  hover:bg-gray-600 transition-colors duration-200 border ">
+                        <button onClick={() => handlePrevious()} className="px-4 py-2 rounded-xl text-gray-300  hover:bg-gray-600 transition-colors duration-200 border ">
                             Previous
                         </button>
 
@@ -317,10 +378,11 @@ export default function Highlighter({ item: initialItem }: HighlighterProps) {
                             <button onClick={() => {
                                 setIsAddModel(true)
                                 sendMessage("focusEditor")
+                                sendMessage("openDocs", { path: item.data.path, startLine: item.data.line_start, endLine: item.data.line_end })
                             }} className="px-4 py-2 rounded-xl text-gray-300  hover:bg-gray-600 transition-colors duration-200 border ">
                                 Reselect
                             </button>
-                            <button onClick={() => addToDocs()} className="px-4 py-2 rounded-xl bg-blue-600 text-white hover:bg-blue-700 transition-colors duration-200">
+                            <button onClick={() => addToDocs(item)} className="px-4 py-2 rounded-xl bg-blue-600 text-white hover:bg-blue-700 transition-colors duration-200">
                                 Add to Doc
                             </button>
                         </div>

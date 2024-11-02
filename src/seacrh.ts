@@ -119,7 +119,7 @@ export async function* searchStringParallel(
   try {
     const files = await vscode.workspace.findFiles(
       "**/*.*",
-      "{**/node_modules/**,.git/**,**/dist/**,**/build/**}"
+      "{**/node_modules/**,.git/**,**/dist/**,**/build/**,**/.walkthru/**}"
     );
 
     const promises: Promise<any[]>[] = [];
