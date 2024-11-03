@@ -85,6 +85,7 @@ export default function Highlighter({ item: initialItem }: HighlighterProps) {
             if (block.id === item.id) {
                 console.log("Item on session storage ", block)
 
+
                 setItem(block)
             }
 

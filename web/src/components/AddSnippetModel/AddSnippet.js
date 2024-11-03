@@ -6,7 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const react_1 = __importDefault(require("react"));
 const code_png_1 = __importDefault(require("../../assets/code.png"));
 const AddSnippet = ({ handleAddToDocs, handleClose }) => {
-    return (<div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-[100] p-4">
+    return (<div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-[1000] p-4">
             <div className='w-[70%]'>
                 <img src={code_png_1.default} className='w-full' alt='image'/>
                 <div className='flex  gap-3 mt-3 justify-center'>

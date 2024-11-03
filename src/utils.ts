@@ -181,7 +181,7 @@ async function findBestMatch(
             matchPercentage: matchPercentage,
           },
         ];
-      } else if (matchPercentage >= 50) {
+      } else if (matchPercentage >= matchThreshold) {
         // Store results for multi match case
         matchArray.push({
           lineNumber: i + 1,

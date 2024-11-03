@@ -27,47 +27,56 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const react_1 = __importStar(require("react"));
-const FileExplorer_1 = __importDefault(require("./FileExplorer")); // Assuming this is your existing File Explorer component
+const FileExplorer_1 = __importDefault(require("./FileExplorer"));
 const VscodeSendMessage_1 = __importDefault(require("../../utils/VscodeSendMessage"));
 const FilterData_1 = __importDefault(require("./FilterData"));
+// Memoize FileExplorer component to prevent unnecessary re-renders
+const MemoizedFileExplorer = (0, react_1.memo)(FileExplorer_1.default);
 const FileExplorerModal = ({ handleAddDocs }) => {
     const [listening, setListening] = (0, react_1.useState)(true);
     const [fileData, setFileData] = (0, react_1.useState)();
-    const sendMessage = (command, data) => {
+    // Memoize the sendMessage function
+    const sendMessage = (0, react_1.useCallback)((command, data) => {
         VscodeSendMessage_1.default?.postMessage({
             command: command,
             text: data
         });
         setListening(true);
-    };
+    }, []);
+    // Memoize the handleAdd callback
+    const handleAdd = (0, react_1.useCallback)((selectedPath) => {
+        console.log(selectedPath, "=============================");
+        handleAddDocs(selectedPath, "path");
+    }, [handleAddDocs]);
+    // Memoize the message handler
+    const handleMessage = (0, react_1.useCallback)((event) => {
+        const message = event.data;
+        if (message.command === "fileStructure") {
+            console.log(message);
+            // Move the filtering to a web worker if the data is large
+            const filteredData = (0, FilterData_1.default)(message.data);
+            setFileData(filteredData);
+            setListening(false);
+        }
+    }, []);
     (0, react_1.useEffect)(() => {
         if (!listening)
             return;
-        sendMessage("getStructure", "t");
-        // Listen for messages from the extension
-        const handleMessage = (event) => {
-            const message = event.data;
-            if (message.command === "fileStructure") {
-                console.log(message);
-                const filteredData = (0, FilterData_1.default)(message.data);
-                setFileData(filteredData);
-                // Stop listening once the message is received
-                setListening(false);
-            }
-        };
+        // Only send message if we're listening and don't have fileData
+        if (!fileData) {
+            sendMessage("getStructure", "t");
+        }
         window.addEventListener('message', handleMessage);
-        // Clean up the listener when not needed
         return () => {
             window.removeEventListener('message', handleMessage);
         };
-    }, [listening]);
-    return (<div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center p-4">
-
-            {fileData ? <FileExplorer_1.default handleAdd={(selectedPath) => {
-                console.log(selectedPath, "=============================");
-                handleAddDocs(selectedPath, "path"); // Call parent function with selected path
-            }} data={fileData}/> : ""}
+    }, [listening, handleMessage, sendMessage, fileData]);
+    // Use React.memo pattern for the modal wrapper
+    const modalContent = (0, react_1.useMemo)(() => (fileData ? (<MemoizedFileExplorer handleAdd={handleAdd} data={fileData}/>) : null), [fileData, handleAdd]);
+    return (<div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center z-[1000] justify-center p-4">
+            {modalContent}
         </div>);
 };
-exports.default = FileExplorerModal;
+// Memoize the entire component to prevent unnecessary re-renders from parent
+exports.default = (0, react_1.memo)(FileExplorerModal);
 //# sourceMappingURL=FileExlorerModel.js.map
