@@ -36,7 +36,6 @@ const FilePath_1 = __importDefault(require("./FilePath/FilePath"));
 const AddSnippet_1 = __importDefault(require("./AddSnippetModel/AddSnippet"));
 const react_redux_1 = require("react-redux");
 const docs_1 = require("../redux-store/docs");
-const TokenModel_1 = __importDefault(require("./AddToken/TokenModel"));
 const Home = () => {
     const docs = (0, react_redux_1.useSelector)((state) => {
         // Force a new reference for both docs and blocks array
@@ -134,7 +133,7 @@ const Home = () => {
         }
     };
     return (<div className="flex mt-5 mb-5 justify-center w-full">
-            <TokenModel_1.default />
+
             {/* <StateDebugger /> */}
             <div className="w-[90%] rounded-lg shadow-lg">
                 <div className="flex items-center justify-between mb-2">

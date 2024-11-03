@@ -70,17 +70,27 @@ function Highlighter({ item: initialItem }) {
         setListening(true);
     };
     (0, react_1.useEffect)(() => {
-        console.log('Highlighter item changed:', initialItem);
+        // console.log('Highlighter item changed:', initialItem);
+        setItem(initialItem);
         session.blocks.forEach((block) => {
             if (block.id === item.id) {
-                if (!block.obsolete) {
-                }
+                console.log("Item on session storage ", block);
                 setItem(block);
             }
-            setItem(initialItem);
         });
+        const outdatedBlock = session.blocks.find(block => block.id === item.id && block.outdated === false);
+        if (outdatedBlock) {
+            if (initialItem.outdated && updated) {
+                sendMessage("update", item);
+            }
+        }
+        const obsoleteBlock = session.blocks.find(block => block.id === item.id && block.obsolete);
+        if (obsoleteBlock && !initialItem.obsolete && updated) {
+            dispatch((0, session_1.removeBlocksById)(item.id));
+            console.log(session, item);
+        }
     }, [initialItem]);
-    console.log('Highlighter render:', item);
+    // console.log('Highlighter render:', item);
     (0, react_1.useEffect)(() => {
         if (!listening)
             return;
@@ -129,9 +139,11 @@ function Highlighter({ item: initialItem }) {
             setItem((prevItem) => {
                 return { ...prevItem, ...foundBlock };
             });
+            const updatedBlocks = session.blocks.filter(block => block.id !== item.id);
+            dispatch((0, session_1.updateSession)(updatedBlocks));
+            console.log(session, item, docs_1.updateDocBlocks);
             setUpdated(false);
             console.log('Updated state:', updated); // Add a console log here
-            handleUpdate(foundBlock);
         }
     };
     (0, react_1.useEffect)(() => {
@@ -141,7 +153,7 @@ function Highlighter({ item: initialItem }) {
         dispatch((0, docs_1.deleteBlocksById)(item.id));
     };
     const handleUpdate = (data, command) => {
-        if (data.obsolete && command === "select") {
+        if (command === "select") {
             const updatedBlocks = session.blocks.filter(block => block.id !== data.id);
             dispatch((0, session_1.updateSession)(updatedBlocks));
             let newItem = {
@@ -159,7 +171,6 @@ function Highlighter({ item: initialItem }) {
                 updatedBlocks = session.blocks.map((block, index) => index === existingBlockIndex ? data : block);
             }
             else {
-                // Add new block
                 updatedBlocks = [...session.blocks, data];
             }
             dispatch((0, session_1.updateSession)(updatedBlocks));
@@ -191,6 +202,8 @@ function Highlighter({ item: initialItem }) {
             line_end: item.data.line_end,
             text: item.data.text
         });
+        const updatedBlocks = session.blocks.filter(block => block.id !== item.id);
+        dispatch((0, session_1.updateSession)(updatedBlocks));
         dispatch((0, docs_1.updateDocBlocks)(blocks));
         setUpdated(false);
     };
@@ -305,6 +318,7 @@ function Highlighter({ item: initialItem }) {
                             <button onClick={() => {
                 setIsAddModel(true);
                 sendMessage("focusEditor");
+                sendMessage("openDocs", { path: item.data.path, startLine: item.data.line_start, endLine: item.data.line_end });
             }} className="px-4 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700 transition-colors duration-200">
                                 Reselect
                             </button>

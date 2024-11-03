@@ -204,7 +204,6 @@ async function findBestMatch(
   // If not found, return null
   return result;
 }
-
 export async function verifyPath(snippetBlock) {
   // Get workspace folders
   const workspaceFolders = vscode.workspace.workspaceFolders;
@@ -329,8 +328,8 @@ export async function updateSnippet(snippetBlock) {
     matchThreshold
   );
   let updatedSnippetArray = [];
-  if (multi && bestMatchArray.length > 0) {
-    for (let i = 0; i < bestMatchArray.length; i++) {
+  if (multi && bestMatchArray?.length > 0) {
+    for (let i = 0; i < bestMatchArray?.length; i++) {
       let bestMatch = bestMatchArray[i];
       const constructedSnippetArr = constructMultiLineSnippet(
         fileContent,

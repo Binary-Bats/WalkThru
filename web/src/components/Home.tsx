@@ -152,7 +152,7 @@ const Home = () => {
 
     return (
         <div className="flex mt-5 mb-5 justify-center w-full">
-            <TokenModel />
+
             {/* <StateDebugger /> */}
             <div className="w-[90%] rounded-lg shadow-lg">
                 <div className="flex items-center justify-between mb-2">

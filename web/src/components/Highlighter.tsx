@@ -7,7 +7,7 @@ import languageMap from './../utils/languageMap.json';
 import { useDispatch, useSelector } from "react-redux";
 import { AppState } from "../redux-store/docStore";
 import vscode from "../utils/VscodeSendMessage";
-import { updateSession } from "../redux-store/session";
+import { removeBlocksById, updateSession } from "../redux-store/session";
 import { addDocs, deleteBlocksById, updateDocBlocks } from '../redux-store/docs';
 import AddSnippet from "./AddSnippetModel/AddSnippet";
 
@@ -79,21 +79,32 @@ export default function Highlighter({ item: initialItem }: HighlighterProps) {
     };
 
     useEffect(() => {
-        console.log('Highlighter item changed:', initialItem);
+        // console.log('Highlighter item changed:', initialItem);
+        setItem(initialItem)
         session.blocks.forEach((block) => {
             if (block.id === item.id) {
-                if (!block.obsolete) {
-
-                }
+                console.log("Item on session storage ", block)
 
                 setItem(block)
             }
-            setItem(initialItem)
+
         })
+        const outdatedBlock = session.blocks.find(block => block.id === item.id && block.outdated === false);
+        if (outdatedBlock) {
+            if (initialItem.outdated && updated) {
+                sendMessage("update", item)
+            }
+
+        }
+        const obsoleteBlock = session.blocks.find(block => block.id === item.id && block.obsolete);
+        if (obsoleteBlock && !initialItem.obsolete && updated) {
+            dispatch(removeBlocksById(item.id));
+            console.log(session, item)
+        }
 
     }, [initialItem]);
 
-    console.log('Highlighter render:', item);
+    // console.log('Highlighter render:', item);
     useEffect(() => {
 
         if (!listening) return;
@@ -110,6 +121,7 @@ export default function Highlighter({ item: initialItem }: HighlighterProps) {
 
                 setListening(false);
             }
+
 
             if (message.command === 'select') {
                 let newItem = {
@@ -156,9 +168,12 @@ export default function Highlighter({ item: initialItem }: HighlighterProps) {
             setItem((prevItem) => {
                 return { ...prevItem, ...foundBlock };
             });
+            const updatedBlocks = session.blocks.filter(block => block.id !== item.id);
+            dispatch(updateSession(updatedBlocks));
+            console.log(session, item, updateDocBlocks)
             setUpdated(false);
             console.log('Updated state:', updated); // Add a console log here
-            handleUpdate(foundBlock);
+
         }
     };
 
@@ -169,7 +184,7 @@ export default function Highlighter({ item: initialItem }: HighlighterProps) {
         dispatch(deleteBlocksById(item.id))
     }
     const handleUpdate = (data: CodeDocs, command?: string) => {
-        if (data.obsolete && command === "select") {
+        if (command === "select") {
             const updatedBlocks = session.blocks.filter(block => block.id !== data.id);
             dispatch(updateSession(updatedBlocks));
             let newItem = {
@@ -191,7 +206,7 @@ export default function Highlighter({ item: initialItem }: HighlighterProps) {
                     index === existingBlockIndex ? data : block
                 );
             } else {
-                // Add new block
+
                 updatedBlocks = [...session.blocks, data];
             }
 
@@ -230,6 +245,8 @@ export default function Highlighter({ item: initialItem }: HighlighterProps) {
             text: item.data.text
         })
 
+        const updatedBlocks = session.blocks.filter(block => block.id !== item.id);
+        dispatch(updateSession(updatedBlocks));
         dispatch(updateDocBlocks(blocks))
         setUpdated(false)
 
@@ -361,6 +378,7 @@ export default function Highlighter({ item: initialItem }: HighlighterProps) {
                             <button onClick={() => {
                                 setIsAddModel(true)
                                 sendMessage("focusEditor")
+                                sendMessage("openDocs", { path: item.data.path, startLine: item.data.line_start, endLine: item.data.line_end })
                             }} className="px-4 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700 transition-colors duration-200">
                                 Reselect
                             </button>

@@ -24,8 +24,14 @@ export const sessionSlice = createSlice({
       state.session.blocks = action.payload;
       vscode?.setState({ session: action.payload });
     },
+    removeBlocksById: (state, action: PayloadAction<string>) => {
+      state.session.blocks = state.session.blocks.filter(
+        (block) => block.id !== action.payload
+      );
+      vscode?.setState({ session: state.session.blocks });
+    },
   },
 });
 
-export const { updateSession } = sessionSlice.actions;
+export const { updateSession, removeBlocksById } = sessionSlice.actions;
 export default sessionSlice.reducer;
