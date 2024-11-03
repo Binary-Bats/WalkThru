@@ -11,6 +11,7 @@ interface SnippetBlock {
   };
   outdated: boolean;
   obsolete: boolean;
+  updated?: boolean;
 }
 
 function levenshteinDistance(str1, str2) {
@@ -290,9 +291,10 @@ export async function verifySnippet(snippetBlock: SnippetBlock) {
       return snippetBlock;
     }
   }
-
-  // Return false if not found
-  snippetBlock.outdated = true;
+  delete snippetBlock.updated;
+  if (!snippetBlock.obsolete) {
+    snippetBlock.outdated = true;
+  }
   return snippetBlock;
 }
 
@@ -365,7 +367,7 @@ export async function updateSnippet(snippetBlock) {
       return {
         id: snippetBlock.id,
         type: snippetBlock.type,
-        outdated: snippetBlock["outdated"],
+        outdated: !snippetBlock["outdated"],
         obsolete: true,
         data: {
           text: snippetBlock.data.text,
