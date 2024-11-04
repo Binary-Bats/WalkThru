@@ -85,6 +85,9 @@ function Highlighter({ item: initialItem }) {
                 handleUpdate(newItem, message.command);
                 setListening(false);
             }
+            if (message.command === 'blockState') {
+                handlePrevious(message.data.state);
+            }
         };
         window.addEventListener('message', handleMessage);
         // Clean up the listener when not needed
@@ -92,10 +95,8 @@ function Highlighter({ item: initialItem }) {
             window.removeEventListener('message', handleMessage);
         };
     }, [listening]);
-    const handlePrevious = () => {
-        const foundBlock = docs.blocks.find((block) => block.id === item.id);
-        if (foundBlock) {
-        }
+    const handlePrevious = (data) => {
+        addToDocs(data);
     };
     const handleRemove = (item) => {
         dispatch((0, docs_1.deleteBlocksById)(item.id));
@@ -113,6 +114,10 @@ function Highlighter({ item: initialItem }) {
             };
             delete newData['updated'];
             console.log(newData, "inside command select");
+            VscodeSendMessage_1.default?.postMessage({
+                command: "removeBlockState",
+                data: newData
+            });
         }
         else {
             newData = data;
@@ -246,7 +251,10 @@ function Highlighter({ item: initialItem }) {
                     <div className="  justify-end w-[95%] rounded-2xl px-8 py-4 text-lg flex items-center" style={headerStyle}>
                         <div className="flex gap-3">
 
-                            <button onClick={() => sendMessage("update", item)} className="px-4 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700 transition-colors duration-200">
+                            <button onClick={() => {
+                console.log("Update snippet--------", item);
+                sendMessage("update", item);
+            }} className="px-4 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700 transition-colors duration-200">
                                 Update
                             </button>
                         </div>
@@ -271,7 +279,7 @@ function Highlighter({ item: initialItem }) {
                     </div>
                 </div> : item.updated ? <div className="flex justify-center px-1 mb-3  ">
                     <div className=" w-[95%] rounded-2xl px-8 py-4 text-lg flex justify-between items-center p-4" style={headerStyle}>
-                        <button onClick={() => handlePrevious()} className="px-4 py-2 rounded-xl text-gray-300  hover:bg-gray-600 transition-colors duration-200 border ">
+                        <button onClick={() => sendMessage("getBlockState", item)} className="px-4 py-2 rounded-xl text-gray-300  hover:bg-gray-600 transition-colors duration-200 border ">
                             Previous
                         </button>
 
@@ -283,7 +291,15 @@ function Highlighter({ item: initialItem }) {
             }} className="px-4 py-2 rounded-xl text-gray-300  hover:bg-gray-600 transition-colors duration-200 border ">
                                 Reselect
                             </button>
-                            <button onClick={() => addToDocs(item)} className="px-4 py-2 rounded-xl bg-blue-600 text-white hover:bg-blue-700 transition-colors duration-200">
+                            <button onClick={() => {
+                let nitem = { ...item };
+                delete nitem["updated"];
+                VscodeSendMessage_1.default?.postMessage({
+                    command: "removeBlockState",
+                    data: nitem
+                });
+                addToDocs(nitem);
+            }} className="px-4 py-2 rounded-xl bg-blue-600 text-white hover:bg-blue-700 transition-colors duration-200">
                                 Add to Doc
                             </button>
                         </div>

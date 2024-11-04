@@ -7,6 +7,12 @@ interface WebviewMessage {
   command: string;
   data: any;
 }
+
+interface BlockState {
+  id: string;
+  content: any;
+  lastUpdated: number;
+}
 let searchCancelToken: vscode.CancellationTokenSource | undefined;
 import { searchStringParallel } from "./seacrh";
 import { openAndSelectLinesInDocument } from "./PcessDocs";
@@ -15,6 +21,7 @@ export default class MyPanel {
   private panel: vscode.WebviewPanel;
   private context: vscode.ExtensionContext;
   private initialData: any; // Store initial data
+  private blockStates: Map<string, BlockState> = new Map();
 
   constructor(context: vscode.ExtensionContext, initialData: any = null) {
     this.context = context;
@@ -97,8 +104,39 @@ export default class MyPanel {
             }
             break;
           case "update":
+            if (message.data?.id) {
+              if (!this.blockStates.get(message.data.id)) {
+                this.blockStates.set(message.data.id, {
+                  id: message.data.id,
+                  content: message.data,
+                  lastUpdated: Date.now(),
+                });
+              }
+            }
+            console.log(
+              "State in old block",
+              this.blockStates.get(message.data.id)
+            );
             const block = await updateSnippet(message.data);
             this.sendMsgToWebview("updatedBlock", block);
+            break;
+          case "getBlockState":
+            if (message.data?.id) {
+              const state = this.blockStates.get(message.data.id);
+              if (state) {
+                this.sendMsgToWebview("blockState", {
+                  id: message.data.id,
+                  state: state.content,
+                });
+              }
+            }
+            break;
+
+          case "removeBlockState":
+            if (message.data?.id) {
+              this.blockStates.delete(message.data.id);
+              console.log(`State removed for block: ${message.data.id}`);
+            }
             break;
           case "search":
             if (searchCancelToken) {
@@ -173,6 +211,20 @@ export default class MyPanel {
       const data = await processJson(this.initialData);
       this.updateData(data);
     });
+
+    this.panel.onDidDispose(async () => {
+      if (this.initialData && Array.isArray(this.initialData.blocks)) {
+        this.initialData.blocks = this.initialData.blocks.map(
+          (initialBlock) => {
+            const blockState = this.blockStates.get(initialBlock.id);
+            return blockState
+              ? { ...initialBlock, ...blockState.content }
+              : initialBlock;
+          }
+        );
+        await saveDocsToFile(this.initialData);
+      }
+    });
   }
 
   public getWorkspaceName() {
@@ -196,11 +248,14 @@ export default class MyPanel {
     const cssSrc = this.panel.webview.asWebviewUri(
       vscode.Uri.joinPath(this.context.extensionUri, "web", "dist", "index.css")
     );
+    const image = this.panel.webview.asWebviewUri(
+      vscode.Uri.joinPath(this.context.extensionUri, "media", "code.png")
+    );
     // Convert initial data to a safe string
     const initialDataScript = this.initialData
-      ? `<script>window.initialData = ${JSON.stringify(
-          this.initialData
-        )};</script>`
+      ? `<script>
+      window.image = "${image}";
+      window.initialData = ${JSON.stringify(this.initialData)};</script>`
       : "";
 
     this.panel.webview.html = `
@@ -210,6 +265,7 @@ export default class MyPanel {
                     <meta charset="UTF-8">
                     <meta name="viewport" content="width=device-width, initial-scale=1.0">
                     <link rel="stylesheet" href="${cssSrc}" />
+                    <link rel="preload" href="${image}" as="image" type="image/png">
                     <title>React App</title>
                 </head>
                 <body>
@@ -343,4 +399,56 @@ export default class MyPanel {
 //         </body>
 //       </html>`;
 //   }
+// }
+
+// private async saveState() {
+//   const states = this.context.workspaceState.get<{
+//     [key: string]: WebviewState;
+//   }>("webviewStates", {});
+//   states[this.panelId] = {
+//     ...this.state,
+//     lastUpdated: Date.now(),
+//   };
+//   await this.context.workspaceState.update("webviewStates", states);
+// }
+// private async cleanupState() {
+//   const states = this.context.workspaceState.get<{
+//     [key: string]: WebviewState;
+//   }>("webviewStates", {});
+//   delete states[this.panelId];
+//   await this.context.workspaceState.update("webviewStates", states);
+// }
+
+// private loadState(): WebviewState {
+//   const states = this.context.workspaceState.get<{
+//     [key: string]: WebviewState;
+//   }>("webviewStates", {});
+//   return (
+//     states[this.panelId] || {
+//       id: this.panelId,
+//       data: this.initialData,
+//       lastUpdated: Date.now(),
+//     }
+//   );
+// }
+// public async setState(key: string, value: any) {
+//   this.state.data = {
+//     ...this.state.data,
+//     [key]: value,
+//   };
+//   await this.saveState();
+
+//   // Notify webview of state change
+//   this.sendMsgToWebview("stateUpdate", {
+//     key,
+//     value,
+//     state: this.state.data,
+//   });
+// }
+
+// public getState(key?: string) {
+//   if (key) {
+//     return this.state.data?.[key];
+//   }
+//   return this.state.data;
 // }

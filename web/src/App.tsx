@@ -11,6 +11,7 @@ import { use } from "marked";
 declare global {
   interface Window {
     initialData: any;
+    image: any;
     vscode: any;
   }
 }
