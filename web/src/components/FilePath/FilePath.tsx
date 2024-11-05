@@ -39,7 +39,7 @@ const FilePath: React.FC<FilePathProps> = ({ item }) => {
         <div className='mb-5'>
             <div className="relative inline-block w-[100%]">
                 {/* Hover Modal */}
-                {isHovered && (
+                {item.obsolete && isHovered && (
                     <div onMouseLeave={(e) => {
                         const relatedTarget = e.relatedTarget as HTMLElement;
                         if (!relatedTarget?.closest('.hover-modal-container')) {

@@ -45,7 +45,7 @@ const FilePath = ({ item }) => {
     return (<div className='mb-5'>
             <div className="relative inline-block w-[100%]">
                 {/* Hover Modal */}
-                {isHovered && (<div onMouseLeave={(e) => {
+                {item.obsolete && isHovered && (<div onMouseLeave={(e) => {
                 const relatedTarget = e.relatedTarget;
                 if (!relatedTarget?.closest('.hover-modal-container')) {
                     setIsHovered(false);
