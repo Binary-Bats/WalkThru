@@ -217,9 +217,11 @@ export default class MyPanel {
         this.initialData.blocks = this.initialData.blocks.map(
           (initialBlock) => {
             const blockState = this.blockStates.get(initialBlock.id);
-            return blockState
+            const updatedBlock = blockState
               ? { ...initialBlock, ...blockState.content }
               : initialBlock;
+            delete updatedBlock["updated"];
+            return updatedBlock;
           }
         );
         await saveDocsToFile(this.initialData);
