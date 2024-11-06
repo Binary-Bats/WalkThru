@@ -84,7 +84,7 @@ const ResultItem = react_1.default.memo(({ result, isSelected, onClick }) => (<d
             </div>
         </div>
     </div>));
-const Token = ({ handleClose }) => {
+const Token = ({ handleClose, id }) => {
     const [searchText, setSearchText] = (0, react_1.useState)('');
     const [results, setResults] = (0, react_1.useState)([]);
     const [isSearching, setIsSearching] = (0, react_1.useState)(false);
@@ -124,21 +124,53 @@ const Token = ({ handleClose }) => {
         //         data: data as Path
         //     };
         // }
-        let token = {
-            id: (0, uuid_1.v4)(),
-            obsolete: false,
-            outdated: false,
-            type: "token",
-            data: {
-                text: selectedItem.content,
-                line_start: selectedItem.line,
-                line_end: selectedItem.line,
-                range: selectedItem.range,
-                path: selectedItem.relativePath,
-                tag: selectedItem.token
-            }
-        };
-        dispatch((0, docs_1.updateDocs)(token));
+        function updateBlock(blocks, targetId, newData) {
+            return blocks.map(block => {
+                if (block.type === 'token' && block.id === targetId) {
+                    return {
+                        ...block,
+                        obsolete: false,
+                        data: newData
+                    };
+                }
+                return block;
+            });
+        }
+        let token;
+        if (id) {
+            token = {
+                obsolete: false,
+                outdated: false,
+                type: "token",
+                data: {
+                    text: selectedItem.content,
+                    line_start: selectedItem.line,
+                    line_end: selectedItem.line,
+                    range: selectedItem.range,
+                    path: selectedItem.relativePath,
+                    tag: selectedItem.token
+                }
+            };
+            let blocks = updateBlock(docs.blocks, id, token.data);
+            dispatch((0, docs_1.updateDocBlocks)(blocks));
+        }
+        else {
+            token = {
+                id: (0, uuid_1.v4)(),
+                obsolete: false,
+                outdated: false,
+                type: "token",
+                data: {
+                    text: selectedItem.content,
+                    line_start: selectedItem.line,
+                    line_end: selectedItem.line,
+                    range: selectedItem.range,
+                    path: selectedItem.relativePath,
+                    tag: selectedItem.token
+                }
+            };
+            dispatch((0, docs_1.updateDocs)(token));
+        }
     };
     const handleMessage = (0, react_1.useCallback)((event) => {
         const message = event.data;

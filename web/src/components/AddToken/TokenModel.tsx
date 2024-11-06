@@ -20,15 +20,16 @@ type Path = {
 
 type Props = {
     handleClose: () => void
+    id?: string
 }
 
 
-const TokenModel = ({ handleClose }: Props) => {
+const TokenModel = ({ handleClose, id }: Props) => {
 
     return (
         <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center p-4 z-[100]">
 
-            <Token handleClose={handleClose} />
+            <Token handleClose={handleClose} id={id} />
         </div>
     );
 };

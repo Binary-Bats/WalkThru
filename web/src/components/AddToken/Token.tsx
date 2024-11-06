@@ -4,7 +4,7 @@ import vscode from '../../utils/VscodeSendMessage';
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { oneDark } from "react-syntax-highlighter/dist/cjs/styles/prism";
 import { useDispatch, useSelector } from 'react-redux';
-import { addDocs, updateDocs, updateTitle } from '../../redux-store/docs';
+import { addDocs, updateDocBlocks, updateDocs, updateTitle } from '../../redux-store/docs';
 import languageMap from '../../utils/languageMap.json';
 import { v4 as uuidv4 } from 'uuid';
 import path from 'path';
@@ -13,6 +13,7 @@ interface LanguageMap {
 }
 type Props = {
     handleClose: () => void
+    id?: string
 }
 
 // Memoize language detection
@@ -72,7 +73,7 @@ const ResultItem = React.memo(({ result, isSelected, onClick }) => (
     </div>
 ));
 
-const Token = ({handleClose}:Props) => {
+const Token = ({handleClose,id}:Props) => {
     const [searchText, setSearchText] = useState('');
     const [results, setResults] = useState([]);
     const [isSearching, setIsSearching] = useState(false);
@@ -116,25 +117,59 @@ const Token = ({handleClose}:Props) => {
         //         data: data as Path
         //     };
         // }
-
-        let token = {
-            id: uuidv4(),
-            obsolete: false,
-            outdated: false,
-            type: "token",
-            data: {
-                text: selectedItem.content,
-                line_start: selectedItem.line,
-                line_end: selectedItem.line,
-                range: selectedItem.range,
-                path: selectedItem.relativePath,
-                tag: selectedItem.token
-
-
-            }
+        function updateBlock(blocks: any, targetId: string, newData: any) {
+            return blocks.map(block => {
+                if (block.type === 'token' && block.id === targetId) {
+                    return {
+                        ...block,
+                        obsolete: false,
+                        data: newData
+                    };
+                }
+                return block;
+            });
         }
+        let token
+        if (id){
+            token = {
+                obsolete: false,
+                outdated: false,
+                type: "token",
+                data: {
+                    text: selectedItem.content,
+                    line_start: selectedItem.line,
+                    line_end: selectedItem.line,
+                    range: selectedItem.range,
+                    path: selectedItem.relativePath,
+                    tag: selectedItem.token
 
-        dispatch(updateDocs(token));
+
+                }
+            }
+            let blocks = updateBlock(docs.blocks, id, token.data)
+            dispatch(updateDocBlocks(blocks));
+        }else{
+             token = {
+                id: uuidv4(),
+                obsolete: false,
+                outdated: false,
+                type: "token",
+                data: {
+                    text: selectedItem.content,
+                    line_start: selectedItem.line,
+                    line_end: selectedItem.line,
+                    range: selectedItem.range,
+                    path: selectedItem.relativePath,
+                    tag: selectedItem.token
+
+
+                }
+            }
+            dispatch(updateDocs(token));
+        }
+        
+
+        
 
     }
 

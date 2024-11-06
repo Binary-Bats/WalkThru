@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { AlertTriangleIcon, FileIcon, FolderIcon } from 'lucide-react';
+import { AlertTriangleIcon, FileIcon, FolderIcon, Search } from 'lucide-react';
 import Path from '../Path/Path';
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { oneDark } from "react-syntax-highlighter/dist/cjs/styles/prism";
@@ -11,6 +11,7 @@ import { AppState } from '../../redux-store/docStore';
 import languageMap from '../../utils/languageMap.json';
 const languageCache = new Map<string, string>();
 import vscode from '../../utils/VscodeSendMessage';
+import TokenModel from '../AddToken/TokenModel';
 interface LanguageMap {
     [key: string]: string;
 }
@@ -75,6 +76,7 @@ const TokenView: React.FC<FilePathProps> = ({ item: initialItem }) => {
 
     const [listening, setListening] = useState(false);
     const [item, setItem] = useState(initialItem);
+    const [isSearchModelOpen, setIsSearchModelOpen] = useState(false);
     const dispatch = useDispatch();
     const docs = useSelector((state: AppState) => state.docs.docs);
 
@@ -206,6 +208,7 @@ const TokenView: React.FC<FilePathProps> = ({ item: initialItem }) => {
 
     const handleReselect = (e: React.MouseEvent) => {
         e.stopPropagation();
+        setIsSearchModelOpen(true);
 
         // Add reselect functionality here
     };
@@ -221,7 +224,7 @@ const TokenView: React.FC<FilePathProps> = ({ item: initialItem }) => {
     };
 
     const headerStyle = {
-        backgroundColor: 'rgba(255, 255, 255, 0.1)', // Light transparency for glassy effect
+        backgroundColor: 'rgba(80, 80, 90, 0.5)', // Light transparency for glassy effect
         color: 'var(--vscode-titleBar-foreground)',
         boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.15)', // Soft shadow for floating effect
         backdropFilter: 'blur(8px)', // Frosted glass effect
@@ -233,6 +236,7 @@ const TokenView: React.FC<FilePathProps> = ({ item: initialItem }) => {
 
     return (
         <div className='mb-5'>
+            {isSearchModelOpen ? <TokenModel id={item.id} handleClose={() => setIsSearchModelOpen(false)} /> : null}
 
             <div className="relative inline-block w-[100%]">
                 {/* Hover Modal */}
@@ -251,7 +255,9 @@ const TokenView: React.FC<FilePathProps> = ({ item: initialItem }) => {
                                 <div className="flex w-full rounded-xl px-3 py-2 bg-[#351F27] justify-between" style={headerStyle}>
                                     <div className="   px-3 py-1 rounded-md flex items-center gap-2">
 
-                                        <span>{item.data.path} </span>
+                                        <span><Path path={item.data.path} type={item.type} startLine={item.data.line_start} endLine={item.data.line_end}>
+                                            {item.data.path}
+                                        </Path> </span>
                                     </div>
                                     {item.outdated ? <span className="ml-auto text-[#ff5c5c] "> ⚠ Out of Sync</span> : item.obsolete ? <span className="ml-auto text-[#ff5c5c] "> 🚫 Obsolete</span> : <span className="ml-auto text-[#3fab53] ">{item.updated ? "✓ Code Tag Updated" : "✓✓ Synced"}</span>}
                                 </div>
@@ -289,7 +295,7 @@ const TokenView: React.FC<FilePathProps> = ({ item: initialItem }) => {
                                     </div>
                                 </div> : item.updated ? <div className="flex w-full rounded-xl px-3 py-2 bg-[#351F27] justify-end" style={headerStyle}>
                                     <div className="flex gap-3">
-                                        <button onClick={handleDelete} className="px-2 py-1 rounded-md text-gray-300 hover:bg-zinc-800 transition-colors duration-200 border border-zinc-700">
+                                        <button onClick={handleReselect} className="px-2 py-1 rounded-md text-gray-300 hover:bg-zinc-800 transition-colors duration-200 border border-zinc-700">
                                             Reselect
                                         </button>
                                         <button onClick={() => {
@@ -330,7 +336,7 @@ const TokenView: React.FC<FilePathProps> = ({ item: initialItem }) => {
                     style={containerStyle}
                 >
 
-                    <Path path={item.data.path} type={item.type}>
+                    <Path path={item.data.path} type={item.type} startLine={item.data.line_start} endLine={item.data.line_end}>
                         {item.data.tag}
                     </Path>
                     {item.outdated ? <span className="ml-auto text-[#ff5c5c] "> ⚠ </span> : item.obsolete ? <span className="ml-auto text-[#ff5c5c] "> 🚫 </span> : <span className="ml-auto text-[#3fab53] ">{item.updated ? "✓" : "✓✓ "}</span>}
