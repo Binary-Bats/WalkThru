@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { oneDark } from "react-syntax-highlighter/dist/cjs/styles/prism";
-import { File, TriangleAlert, Ban } from "lucide-react";
+import { File, TriangleAlert, Ban, CircleSlash, CheckCheck, Check } from "lucide-react";
 import Path from "./Path/Path";
 import languageMap from './../utils/languageMap.json';
 import { useDispatch, useSelector } from "react-redux";
@@ -210,16 +210,18 @@ export default function Highlighter({ item: initialItem }: HighlighterProps) {
         },
     };
 
-    const backgroundColor = item.outdated ? "#5B4A1E" : item.obsolete ? "#5B1E31" : 'var(--vscode-editor-background)'
+    const backgroundColor = item.outdated ? "#5B4A1E" : item.obsolete ? "#5B1E31" : 'var(--vscode-editor-background , 0.5)'
 
     const containerStyle = {
         backgroundColor: backgroundColor,
+
         // backgroundColor: "#5B4A1E",
         border: '1px solid var(--vscode-panel-border)',
     };
 
     const headerStyle = {
-        backgroundColor: 'rgba(255, 255, 255, 0.1)', // Light transparency for glassy effect
+        // backgroundColor: 'rgba(255, 255, 255, 0.1)', // Light transparency for glassy effect
+        backgroundColor: item.outdated ? "rgba(53, 51, 31, 1)" : item.obsolete ? 'rgba(53, 31, 39, 1)' : 'rgba(40, 48, 71, 1)',
         color: 'var(--vscode-titleBar-foreground)',
         boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.15)', // Soft shadow for floating effect
         backdropFilter: 'blur(8px)', // Frosted glass effect
@@ -235,52 +237,15 @@ export default function Highlighter({ item: initialItem }: HighlighterProps) {
     };
 
     return (
-        // <div className="flex justify-center mb-5 w-full [color-scheme:dark]">
-        //     <div className="w-full rounded-2xl overflow-hidden shadow-xl" style={containerStyle}>
-        //         <div className="flex justify-center w-[90%] items-center px-4 py-3" style={headerStyle}>
-        //             <File size={16} className="mr-2" style={{ color: 'var(--vscode-foreground)' }} />
-        //             <span className="text-sm font-medium" style={{ color: 'var(--vscode-foreground)' }}>
-        //                 <Path path={filePath}
-        //                     type="snippet"
-        //                     startLine={startNumber}
-        //                     endLine={endLine}>
-        //                     {filePath}
-        //                 </Path>
-        //             </span>
-        //             <span className="ml-auto text-sm flex items-center gap-1" style={syncedStyle}>
-        //                 ✓✓
-        //                 Synced
-        //             </span>
-        //         </div>
-        //         <div style={{
-        //             backgroundColor: 'var(--vscode-editor-background)',
-        //         }}>
-        //             <SyntaxHighlighter
-        //                 language={detectLanguage(filePath)}
-        //                 style={customStyle}
-        //                 showLineNumbers={true}
-        //                 startingLineNumber={startNumber}
-        //                 wrapLines={true}
-        //                 lineNumberStyle={{
-        //                     color: 'var(--vscode-editorLineNumber-foreground)',
-        //                     backgroundColor: 'transparent',
-        //                     paddingRight: '1em',
-        //                     userSelect: 'none'
-        //                 }}
-        //             >
-        //                 {content}
-        //             </SyntaxHighlighter>
-        //         </div>
-        //     </div>
-        // </div>
+
         <div className="flex justify-center mb-5 w-full">
             <div className="w-[100%]  rounded-2xl overflow-hidden bg-[#1e1e1e79]" style={containerStyle}>
                 <div className="flex justify-center px-1 mt-3  " >
-                    <div className="bg-[#252526] w-[95%] rounded-2xl px-10 py-5 text-lg flex items-center" style={headerStyle}>
+                    <div className="bg-[#b3b3b4] w-[95%] rounded-2xl px-10 py-5 text-lg flex items-center" style={headerStyle}>
                         <File size={16} className="mr-2 text-[#858585]" />
                         <span className=" "><Path path={item.data.path} type={"snippet"} startLine={item.data.line_start} endLine={item.data.line_end}> {item.data.path}</Path></span>
 
-                        {item.outdated ? <span className="ml-auto text-[#ff5c5c] "> ⚠ Outdated</span> : item.obsolete ? <span className="ml-auto text-[#ff5c5c] "> 🚫 Obsolete</span> : <span className="ml-auto text-[#3fab53] ">{item.updated ? "✓ Snippet Updated" : "✓✓ Synced"}</span>}
+                        {item.outdated ? <span className="ml-auto flex gap-2 items-center text-[#ff5c5c] "> <TriangleAlert className="w-4 h-4" size={16} /> Outdated</span> : item.obsolete ? <span className="ml-auto flex items-center gap-2 text-[#ff5c5c] "> <CircleSlash className="w-4 h-4" size={16} /> Obsolete</span> : <span className="ml-auto flex items-center text-[#3fab53] ">{item.updated ? <span className="flex items-center gap-2"><Check className="w-4 h-4" size={16} /> Snippet Updated</span > : <span className="flex items-center gap-2"><CheckCheck className="w-4 h-4" size={16} /> Snippet Synced</span>}</span>}
 
                     </div>
                 </div>
@@ -291,7 +256,15 @@ export default function Highlighter({ item: initialItem }: HighlighterProps) {
                         language={detectLanguage(item.data.path)}
                         style={customStyle}
                         showLineNumbers={true}
+                        showInlineLineNumbers={false}
                         startingLineNumber={item.data.line_start}
+                        lineNumberStyle={{
+
+                            color: "#b3b3b4",
+                            paddingRight: '1em',
+                            textAlign: 'right',
+                            userSelect: 'none'
+                        }}
                         wrapLines={true}
                     >
                         {item.data.text}
@@ -304,7 +277,7 @@ export default function Highlighter({ item: initialItem }: HighlighterProps) {
                             <button onClick={() => {
                                 console.log("Update snippet--------", item)
                                 sendMessage("update", item)
-                            }} className="px-4 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700 transition-colors duration-200">
+                            }} className="px-4 py-2 rounded-xl bg-blue-600 text-white hover:bg-blue-700 transition-colors duration-200">
                                 Update
                             </button>
                         </div>
@@ -314,14 +287,14 @@ export default function Highlighter({ item: initialItem }: HighlighterProps) {
                 {item.obsolete ? <div className="flex justify-center px-1 mb-3  " >
                     <div className="  justify-end w-[95%] rounded-2xl px-8 py-4 text-lg flex items-center" style={headerStyle}>
                         <div className="flex gap-3">
-                            <button onClick={() => handleRemove(item)} className="px-4 py-2 rounded-md text-gray-300 hover:bg-zinc-800 transition-colors duration-200 border border-zinc-700">
+                            <button onClick={() => handleRemove(item)} className="px-4 py-2 rounded-lx text-gray-300 hover:bg-zinc-800 transition-colors duration-200 border border-zinc-700">
                                 Remove
                             </button>
                             <button onClick={() => {
                                 setIsAddModel(true)
                                 sendMessage("focusEditor")
                                 sendMessage("openDocs", { path: item.data.path, startLine: item.data.line_start, endLine: item.data.line_end })
-                            }} className="px-4 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700 transition-colors duration-200">
+                            }} className="px-4 py-2 rounded-xl bg-blue-600 text-white hover:bg-blue-700 transition-colors duration-200">
                                 Reselect
                             </button>
                         </div>
@@ -356,27 +329,7 @@ export default function Highlighter({ item: initialItem }: HighlighterProps) {
 
                     </div>
                 </div> : ""}
-                {/* {item.updated ? <div className="flex justify-center px-1 mb-3  " >
-                    <div className=" w-[95%] rounded-2xl px-8 py-4 text-lg flex justify-between items-center p-4" style={headerStyle}>
-                        <button onClick={() => handlePrevious()} className="px-4 py-2 rounded-xl text-gray-300  hover:bg-gray-600 transition-colors duration-200 border ">
-                            Previous
-                        </button>
 
-                        <div className="flex gap-2">
-                            <button onClick={() => {
-                                setIsAddModel(true)
-                                sendMessage("focusEditor")
-                                sendMessage("openDocs", { path: item.data.path, startLine: item.data.line_start, endLine: item.data.line_end })
-                            }} className="px-4 py-2 rounded-xl text-gray-300  hover:bg-gray-600 transition-colors duration-200 border ">
-                                Reselect
-                            </button>
-                            <button onClick={() => addToDocs(item)} className="px-4 py-2 rounded-xl bg-blue-600 text-white hover:bg-blue-700 transition-colors duration-200">
-                                Add to Doc
-                            </button>
-                        </div>
-
-                    </div>
-                </div> : ""} */}
             </div>
             {isAddModel ? <AddSnippet handleAddToDocs={() => {
                 sendMessage("alert")

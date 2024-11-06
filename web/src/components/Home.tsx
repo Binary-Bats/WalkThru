@@ -103,8 +103,6 @@ const Home = () => {
 
         dispatch(updateDocs(docItem));
         setIsFileExOpen(false);
-
-
     };
 
     const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -159,7 +157,7 @@ const Home = () => {
                         type="text"
                         value={localTitle}
                         onChange={handleTitleChange}
-                        className={`bg-transparent text-white text-[4rem] font-bold focus:outline-none 
+                        className={`bg-transparent text-white text-[2rem] sm:text-[2.5rem] md:text-[3rem] lg:text-[3.5rem] xl:text-[4rem] font-bold focus:outline-none 
                             ${isEditing ? 'border-blue-500' : 'border-transparent'}
                             pb-1 w-full ${!isEditing && 'cursor-not-allowed'}`}
                         readOnly={!isEditing}

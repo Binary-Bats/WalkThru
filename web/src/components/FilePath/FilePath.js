@@ -112,8 +112,8 @@ const FilePath = ({ item }) => {
                                         <span>{item.data.contextValue} does not exist</span>
                                     </div>
                                     <div className="flex items-center gap-1.5">
-                                        <div className="w-2 h-2 rounded-full bg-red-500"/>
-                                        <span className="text-red-400 text-sm">Obsolete</span>
+
+                                        <span className="text-red-400 flex items-center gap-2 text-sm"><lucide_react_1.CircleSlash className='w-4 h-4' size={16}/>Obsolete</span>
                                     </div>
                                 </div>
                                 <div className='mt-2 mb-2 px-6 items-center  text-lg flex gap-2'>
@@ -153,8 +153,8 @@ const FilePath = ({ item }) => {
                     <Path_1.default path={item.data.path} type={item.data.contextValue}>
                         {item.data.path}
                     </Path_1.default>
-                    {!item.obsolete && (<span className="text-[#3fab53] text-sm">✓✓</span>)}
-                    {item.obsolete ? <lucide_react_1.AlertTriangleIcon className="w-4 h-4 text-red-400"/> : ""}
+                    {!item.obsolete && (<span className="text-[#3fab53] text-sm"><lucide_react_1.CheckCheck className='w-4 h-4' size={16}/></span>)}
+                    {item.obsolete ? <lucide_react_1.CircleSlash className='w-4 h-4 text-red-500'/> : ""}
                 </div>
             </div>
         </div>);

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { AlertTriangleIcon, FileIcon, FolderIcon } from 'lucide-react';
+import { AlertTriangleIcon, CheckCheck, CircleSlash, FileIcon, FolderIcon } from 'lucide-react';
 import Path from '../Path/Path';
 
 import { deleteBlocksById, updateDocBlocks } from '../../redux-store/docs';
@@ -118,8 +118,8 @@ const FilePath: React.FC<FilePathProps> = ({ item }) => {
                                         <span>{item.data.contextValue} does not exist</span>
                                     </div>
                                     <div className="flex items-center gap-1.5">
-                                        <div className="w-2 h-2 rounded-full bg-red-500" />
-                                        <span className="text-red-400 text-sm">Obsolete</span>
+
+                                        <span className="text-red-400 flex items-center gap-2 text-sm"><CircleSlash className='w-4 h-4' size={16} />Obsolete</span>
                                     </div>
                                 </div>
                                 <div className='mt-2 mb-2 px-6 items-center  text-lg flex gap-2'>
@@ -167,9 +167,9 @@ const FilePath: React.FC<FilePathProps> = ({ item }) => {
                         {item.data.path}
                     </Path>
                     {!item.obsolete && (
-                        <span className="text-[#3fab53] text-sm">✓✓</span>
+                        <span className="text-[#3fab53] text-sm"><CheckCheck className='w-4 h-4' size={16} /></span>
                     )}
-                    {item.obsolete ? <AlertTriangleIcon className="w-4 h-4 text-red-400" /> : ""}
+                    {item.obsolete ? <CircleSlash className='w-4 h-4 text-red-500' /> : ""}
                 </div>
             </div>
         </div>

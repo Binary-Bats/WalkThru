@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { AlertTriangleIcon, FileIcon, FolderIcon, Search } from 'lucide-react';
+import { AlertTriangleIcon, Check, CheckCheck, CircleSlash, FileIcon, FolderIcon, RefreshCw, Search, TriangleAlert } from 'lucide-react';
 import Path from '../Path/Path';
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { oneDark } from "react-syntax-highlighter/dist/cjs/styles/prism";
+// import SyntaxHighlighter from 'react-syntax-highlighter';
+// import { atomOneDarkReasonable as oneDark } from 'react-syntax-highlighter/dist/esm/styles/hljs';
 import { deleteBlocksById, updateDocBlocks } from '../../redux-store/docs';
 import FileExlorerModel from '../FileExplorer/FileExlorerModel';
 import { useDispatch, useSelector } from 'react-redux';
@@ -30,7 +32,7 @@ const customStyle = {
         ...oneDark['pre[class*="language-"]'],
         backgroundColor: 'transparent',
         margin: 0,
-        padding: '1rem',
+        padding: '0.5rem',
         scrollbarWidth: "none",
         msOverflowStyle: "none"
     },
@@ -77,6 +79,7 @@ const TokenView: React.FC<FilePathProps> = ({ item: initialItem }) => {
     const [listening, setListening] = useState(false);
     const [item, setItem] = useState(initialItem);
     const [isSearchModelOpen, setIsSearchModelOpen] = useState(false);
+    const [previewItem, setPreviewItem] = useState(null);
     const dispatch = useDispatch();
     const docs = useSelector((state: AppState) => state.docs.docs);
 
@@ -94,8 +97,14 @@ const TokenView: React.FC<FilePathProps> = ({ item: initialItem }) => {
     };
 
     useEffect(() => {
+
+    })
+    useEffect(() => {
         // console.log('Highlighter item changed:', initialItem);
         setItem(initialItem)
+        if (initialItem.updated) {
+            sendMessage("getBlockState", initialItem)
+        }
 
     }, [initialItem]);
 
@@ -134,6 +143,7 @@ const TokenView: React.FC<FilePathProps> = ({ item: initialItem }) => {
             }
             if (message.command === 'blockState') {
                 console.log("blockState", message.data)
+                setPreviewItem(message.data.state)
             }
         };
 
@@ -224,7 +234,8 @@ const TokenView: React.FC<FilePathProps> = ({ item: initialItem }) => {
     };
 
     const headerStyle = {
-        backgroundColor: 'rgba(80, 80, 90, 0.5)', // Light transparency for glassy effect
+        // backgroundColor: 'rgba(80, 80, 90, 0.5)', // Light transparency for glassy effect
+        backgroundColor: item.outdated ? "rgba(53, 51, 31, 1)" : item.obsolete ? 'rgba(53, 31, 39, 1)' : 'rgba(40, 48, 71, 1)',
         color: 'var(--vscode-titleBar-foreground)',
         boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.15)', // Soft shadow for floating effect
         backdropFilter: 'blur(8px)', // Frosted glass effect
@@ -250,28 +261,42 @@ const TokenView: React.FC<FilePathProps> = ({ item: initialItem }) => {
                         {/* Invisible bridge to maintain hover */}
                         <div className="absolute w-full h-2 bottom-[-8px]" />
 
-                        <div className="bg-[#5B1E31]  w-[80%] rounded-lg p-3 shadow-xl border border-zinc-700/50 whitespace-nowrap" style={containerStyle}>
+                        <div className="bg-[#5B1E31]  w-[80%] rounded-xl p-3 shadow-xl border border-zinc-700/50 whitespace-nowrap" style={containerStyle}>
                             <div className="flex flex-col justify-center">
-                                <div className="flex w-full rounded-xl px-3 py-2 bg-[#351F27] justify-between" style={headerStyle}>
-                                    <div className="   px-3 py-1 rounded-md flex items-center gap-2">
+                                <div className="flex w-full rounded-xl px-4 py-4 bg-[#351F27] justify-between" style={headerStyle}>
+                                    <div className=" rounded-md flex items-center gap-2">
 
                                         <span><Path path={item.data.path} type={item.type} startLine={item.data.line_start} endLine={item.data.line_end}>
                                             {item.data.path}
                                         </Path> </span>
                                     </div>
-                                    {item.outdated ? <span className="ml-auto text-[#ff5c5c] "> ⚠ Out of Sync</span> : item.obsolete ? <span className="ml-auto text-[#ff5c5c] "> 🚫 Obsolete</span> : <span className="ml-auto text-[#3fab53] ">{item.updated ? "✓ Code Tag Updated" : "✓✓ Synced"}</span>}
+                                    {item.outdated ? <span className="ml-auto flex gap-2 items-center text-[#ff5c5c] "> <TriangleAlert className="w-4 h-4" size={16} /> Out of Sync</span> : item.obsolete ? <span className="ml-auto flex gap-2 items-center text-[#ff5c5c] "> <CircleSlash className='w-4 h-4' size={16} /> Obsolete</span> : <span className="ml-auto text-[#3fab53] ">{item.updated ? <span className='flex gap-2 items-center'><Check className="w-4 h-4" size={16} />Code Tag Updated</span> : <span className='flex gap-2 items-center'><CheckCheck className="w-4 h-4" size={16} /> Synced</span>}</span>}
                                 </div>
-                                <div className='mt-2 mb-2 px-2 items-center  text-lg flex gap-2'>
-
-                                    <SyntaxHighlighter
-                                        language={detectLanguage(item.data.path)}
-                                        style={customStyle}
-                                        showLineNumbers={true}
-                                        startingLineNumber={item.data.line_start}
-                                        wrapLines={true}
-                                    >
-                                        {item.data.text}
-                                    </SyntaxHighlighter>
+                                <div className='mt-2 mb-2 pr-2 flex flex-col'>
+                                    {previewItem && (
+                                        <div className="w-full">
+                                            <SyntaxHighlighter
+                                                language={detectLanguage(item.data.path)}
+                                                style={customStyle}
+                                                showLineNumbers={true}
+                                                startingLineNumber={previewItem.data.line_start}
+                                                wrapLines={true}
+                                            >
+                                                {previewItem.data.text}
+                                            </SyntaxHighlighter>
+                                        </div>
+                                    )}
+                                    <div className="w-full">
+                                        <SyntaxHighlighter
+                                            language={detectLanguage(item.data.path)}
+                                            style={customStyle}
+                                            showLineNumbers={true}
+                                            startingLineNumber={item.data.line_start}
+                                            wrapLines={true}
+                                        >
+                                            {item.data.text}
+                                        </SyntaxHighlighter>
+                                    </div>
                                 </div>
                                 {item.outdated ? <div className="flex w-full rounded-xl px-3 py-2 bg-[#351F27] justify-end" style={headerStyle}>
                                     <div className="flex gap-3">
@@ -317,31 +342,41 @@ const TokenView: React.FC<FilePathProps> = ({ item: initialItem }) => {
                     </div>
                 )}
 
-                {/* Main File Path Display */}
-                <div
-                    className={`
-                    inline-flex items-center gap-2 p-2 rounded-lg
-                    ${item.obsolete
-                            ? 'bg-red-900/30 text-red-400 border border-red-700/50'
-                            : 'bg-slate-800 text-white'}
+                <div className='inline-flex items-center px-2 rounded-lg text-md font-semibold' style={containerStyle}>
+                    {/* Main File Path Display */}
+                    <div
+                        className={`
+                    inline-flex items-center gap-2 p-2 rounded-lg text-md font-semibold
+                    
                 `}
-                    onMouseEnter={() => setIsHovered(true)}
-                    onMouseLeave={(e) => {
-                        const relatedTarget = e.relatedTarget as HTMLElement;
-                        if (!relatedTarget?.closest('.hover-modal-container')) {
-                            setIsHovered(false);
-                        }
-                    }}
-
-                    style={containerStyle}
-                >
-
-                    <Path path={item.data.path} type={item.type} startLine={item.data.line_start} endLine={item.data.line_end}>
-                        {item.data.tag}
-                    </Path>
-                    {item.outdated ? <span className="ml-auto text-[#ff5c5c] "> ⚠ </span> : item.obsolete ? <span className="ml-auto text-[#ff5c5c] "> 🚫 </span> : <span className="ml-auto text-[#3fab53] ">{item.updated ? "✓" : "✓✓ "}</span>}
+                        onMouseEnter={() => setIsHovered(true)}
+                        onMouseLeave={(e) => {
+                            const relatedTarget = e.relatedTarget as HTMLElement;
+                            if (!relatedTarget?.closest('.hover-modal-container')) {
+                                setIsHovered(false);
+                            }
+                        }}
 
 
+
+                    >
+                        <div
+
+                        >
+                            <Path path={item.data.path} type={item.type} startLine={item.data.line_start} endLine={item.data.line_end}>
+                                {item.data.tag}
+                            </Path>
+                        </div>
+
+
+
+
+
+                    </div>
+                    {item.outdated ? <span className="ml-auto text-[#ff5c5c]  " onClick={() => {
+                        console.log("Update snippet--------", item)
+                        sendMessage("update", item)
+                    }}> <RefreshCw className="w-4 h-4 cursor-pointer hover:rotate-45" size={16} /></span> : item.obsolete ? <span className="ml-auto text-[#ff5c5c] "> <CircleSlash className='w-4 h-4' size={16} /> </span> : <span className="ml-auto text-[#3fab53] ">{item.updated ? <span><Check className="w-4 h-4" size={16} /></span> : <CheckCheck className="w-4 h-4" size={16} />}</span>}
                 </div>
             </div>
         </div>

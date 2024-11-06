@@ -27,9 +27,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const react_1 = __importStar(require("react"));
+const lucide_react_1 = require("lucide-react");
 const Path_1 = __importDefault(require("../Path/Path"));
 const react_syntax_highlighter_1 = require("react-syntax-highlighter");
 const prism_1 = require("react-syntax-highlighter/dist/cjs/styles/prism");
+// import SyntaxHighlighter from 'react-syntax-highlighter';
+// import { atomOneDarkReasonable as oneDark } from 'react-syntax-highlighter/dist/esm/styles/hljs';
 const docs_1 = require("../../redux-store/docs");
 const react_redux_1 = require("react-redux");
 const languageMap_json_1 = __importDefault(require("../../utils/languageMap.json"));
@@ -50,7 +53,7 @@ const customStyle = {
         ...prism_1.oneDark['pre[class*="language-"]'],
         backgroundColor: 'transparent',
         margin: 0,
-        padding: '1rem',
+        padding: '0.5rem',
         scrollbarWidth: "none",
         msOverflowStyle: "none"
     },
@@ -70,6 +73,7 @@ const TokenView = ({ item: initialItem }) => {
     const [listening, setListening] = (0, react_1.useState)(false);
     const [item, setItem] = (0, react_1.useState)(initialItem);
     const [isSearchModelOpen, setIsSearchModelOpen] = (0, react_1.useState)(false);
+    const [previewItem, setPreviewItem] = (0, react_1.useState)(null);
     const dispatch = (0, react_redux_1.useDispatch)();
     const docs = (0, react_redux_1.useSelector)((state) => state.docs.docs);
     const handleDelete = (e) => {
@@ -84,8 +88,13 @@ const TokenView = ({ item: initialItem }) => {
         setListening(true);
     };
     (0, react_1.useEffect)(() => {
+    });
+    (0, react_1.useEffect)(() => {
         // console.log('Highlighter item changed:', initialItem);
         setItem(initialItem);
+        if (initialItem.updated) {
+            sendMessage("getBlockState", initialItem);
+        }
     }, [initialItem]);
     (0, react_1.useEffect)(() => {
         if (!listening)
@@ -112,6 +121,7 @@ const TokenView = ({ item: initialItem }) => {
             }
             if (message.command === 'blockState') {
                 console.log("blockState", message.data);
+                setPreviewItem(message.data.state);
             }
         };
         window.addEventListener('message', handleMessage);
@@ -189,7 +199,8 @@ const TokenView = ({ item: initialItem }) => {
         border: '1px solid var(--vscode-panel-border)',
     };
     const headerStyle = {
-        backgroundColor: 'rgba(80, 80, 90, 0.5)', // Light transparency for glassy effect
+        // backgroundColor: 'rgba(80, 80, 90, 0.5)', // Light transparency for glassy effect
+        backgroundColor: item.outdated ? "rgba(53, 51, 31, 1)" : item.obsolete ? 'rgba(53, 31, 39, 1)' : 'rgba(40, 48, 71, 1)',
         color: 'var(--vscode-titleBar-foreground)',
         boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.15)', // Soft shadow for floating effect
         backdropFilter: 'blur(8px)', // Frosted glass effect
@@ -209,22 +220,28 @@ const TokenView = ({ item: initialItem }) => {
                         {/* Invisible bridge to maintain hover */}
                         <div className="absolute w-full h-2 bottom-[-8px]"/>
 
-                        <div className="bg-[#5B1E31]  w-[80%] rounded-lg p-3 shadow-xl border border-zinc-700/50 whitespace-nowrap" style={containerStyle}>
+                        <div className="bg-[#5B1E31]  w-[80%] rounded-xl p-3 shadow-xl border border-zinc-700/50 whitespace-nowrap" style={containerStyle}>
                             <div className="flex flex-col justify-center">
-                                <div className="flex w-full rounded-xl px-3 py-2 bg-[#351F27] justify-between" style={headerStyle}>
-                                    <div className="   px-3 py-1 rounded-md flex items-center gap-2">
+                                <div className="flex w-full rounded-xl px-4 py-4 bg-[#351F27] justify-between" style={headerStyle}>
+                                    <div className=" rounded-md flex items-center gap-2">
 
                                         <span><Path_1.default path={item.data.path} type={item.type} startLine={item.data.line_start} endLine={item.data.line_end}>
                                             {item.data.path}
                                         </Path_1.default> </span>
                                     </div>
-                                    {item.outdated ? <span className="ml-auto text-[#ff5c5c] "> ⚠ Out of Sync</span> : item.obsolete ? <span className="ml-auto text-[#ff5c5c] "> 🚫 Obsolete</span> : <span className="ml-auto text-[#3fab53] ">{item.updated ? "✓ Code Tag Updated" : "✓✓ Synced"}</span>}
+                                    {item.outdated ? <span className="ml-auto flex gap-2 items-center text-[#ff5c5c] "> <lucide_react_1.TriangleAlert className="w-4 h-4" size={16}/> Out of Sync</span> : item.obsolete ? <span className="ml-auto flex gap-2 items-center text-[#ff5c5c] "> <lucide_react_1.CircleSlash className='w-4 h-4' size={16}/> Obsolete</span> : <span className="ml-auto text-[#3fab53] ">{item.updated ? <span className='flex gap-2 items-center'><lucide_react_1.Check className="w-4 h-4" size={16}/>Code Tag Updated</span> : <span className='flex gap-2 items-center'><lucide_react_1.CheckCheck className="w-4 h-4" size={16}/> Synced</span>}</span>}
                                 </div>
-                                <div className='mt-2 mb-2 px-2 items-center  text-lg flex gap-2'>
-
-                                    <react_syntax_highlighter_1.Prism language={detectLanguage(item.data.path)} style={customStyle} showLineNumbers={true} startingLineNumber={item.data.line_start} wrapLines={true}>
-                                        {item.data.text}
-                                    </react_syntax_highlighter_1.Prism>
+                                <div className='mt-2 mb-2 pr-2 flex flex-col'>
+                                    {previewItem && (<div className="w-full">
+                                            <react_syntax_highlighter_1.Prism language={detectLanguage(item.data.path)} style={customStyle} showLineNumbers={true} startingLineNumber={previewItem.data.line_start} wrapLines={true}>
+                                                {previewItem.data.text}
+                                            </react_syntax_highlighter_1.Prism>
+                                        </div>)}
+                                    <div className="w-full">
+                                        <react_syntax_highlighter_1.Prism language={detectLanguage(item.data.path)} style={customStyle} showLineNumbers={true} startingLineNumber={item.data.line_start} wrapLines={true}>
+                                            {item.data.text}
+                                        </react_syntax_highlighter_1.Prism>
+                                    </div>
                                 </div>
                                 {item.outdated ? <div className="flex w-full rounded-xl px-3 py-2 bg-[#351F27] justify-end" style={headerStyle}>
                                     <div className="flex gap-3">
@@ -269,25 +286,32 @@ const TokenView = ({ item: initialItem }) => {
                         </div>
                     </div>)}
 
-                {/* Main File Path Display */}
-                <div className={`
-                    inline-flex items-center gap-2 p-2 rounded-lg
-                    ${item.obsolete
-            ? 'bg-red-900/30 text-red-400 border border-red-700/50'
-            : 'bg-slate-800 text-white'}
+                <div className='inline-flex items-center px-2 rounded-lg text-md font-semibold' style={containerStyle}>
+                    {/* Main File Path Display */}
+                    <div className={`
+                    inline-flex items-center gap-2 p-2 rounded-lg text-md font-semibold
+                    
                 `} onMouseEnter={() => setIsHovered(true)} onMouseLeave={(e) => {
             const relatedTarget = e.relatedTarget;
             if (!relatedTarget?.closest('.hover-modal-container')) {
                 setIsHovered(false);
             }
-        }} style={containerStyle}>
+        }}>
+                        <div>
+                            <Path_1.default path={item.data.path} type={item.type} startLine={item.data.line_start} endLine={item.data.line_end}>
+                                {item.data.tag}
+                            </Path_1.default>
+                        </div>
 
-                    <Path_1.default path={item.data.path} type={item.type} startLine={item.data.line_start} endLine={item.data.line_end}>
-                        {item.data.tag}
-                    </Path_1.default>
-                    {item.outdated ? <span className="ml-auto text-[#ff5c5c] "> ⚠ </span> : item.obsolete ? <span className="ml-auto text-[#ff5c5c] "> 🚫 </span> : <span className="ml-auto text-[#3fab53] ">{item.updated ? "✓" : "✓✓ "}</span>}
 
 
+
+
+                    </div>
+                    {item.outdated ? <span className="ml-auto text-[#ff5c5c]  " onClick={() => {
+                console.log("Update snippet--------", item);
+                sendMessage("update", item);
+            }}> <lucide_react_1.RefreshCw className="w-4 h-4 cursor-pointer hover:rotate-45" size={16}/></span> : item.obsolete ? <span className="ml-auto text-[#ff5c5c] "> <lucide_react_1.CircleSlash className='w-4 h-4' size={16}/> </span> : <span className="ml-auto text-[#3fab53] ">{item.updated ? <span><lucide_react_1.Check className="w-4 h-4" size={16}/></span> : <lucide_react_1.CheckCheck className="w-4 h-4" size={16}/>}</span>}
                 </div>
             </div>
         </div>);
