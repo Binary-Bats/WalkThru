@@ -123,11 +123,12 @@ const Token = ({handleClose}:Props) => {
             outdated: false,
             type: "token",
             data: {
-                content: selectedItem.content,
-                line: selectedItem.line,
+                text: selectedItem.content,
+                line_start: selectedItem.line,
+                line_end: selectedItem.line,
                 range: selectedItem.range,
                 path: selectedItem.relativePath,
-                token: selectedItem.token
+                tag: selectedItem.token
 
 
             }

@@ -444,7 +444,7 @@ function calculateTagMatchPer(outdatedCodeTag, updatedCodeTag) {
   return matchPercentage;
 }
 
-async function updateCodeTag(snippetBlock) {
+export async function updateCodeTag(snippetBlock) {
   console.time("Execution Time");
   let updatedSnippetBlock = await updateSnippet(snippetBlock);
   if (updatedSnippetBlock.obsolete) {

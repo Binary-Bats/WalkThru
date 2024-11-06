@@ -93,7 +93,7 @@ export async function getTreeJsonForWalkThrus(): Promise<TreeItem[]> {
   if (workspaceRoot) {
     try {
       const walkThruTree: TreeItem[] = await getWalkThruDocsTree(workspaceRoot);
-      console.log("WalkThru Tree:", JSON.stringify(walkThruTree, null, 2)); // Output the tree structure
+      // console.log("WalkThru Tree:", JSON.stringify(walkThruTree, null, 2)); // Output the tree structure
       return walkThruTree;
     } catch (error) {
       if (error instanceof Error) {

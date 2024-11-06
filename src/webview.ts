@@ -1,7 +1,7 @@
 import * as vscode from "vscode";
 import generateFileTreeJson from "./fileStructure";
 import { saveDocsToFile } from "./saveD";
-import { updateSnippet } from "./utils";
+import { updateCodeTag, updateSnippet } from "./utils";
 import { processJson } from "./PcessDocs";
 interface WebviewMessage {
   command: string;
@@ -117,7 +117,13 @@ export default class MyPanel {
               "State in old block",
               this.blockStates.get(message.data.id)
             );
-            const block = await updateSnippet(message.data);
+            let block;
+            if (message.data.type === "snippet") {
+              block = await updateSnippet(message.data);
+            } else if (message.data.type === "token") {
+              block = await updateCodeTag(message.data);
+            }
+
             this.sendMsgToWebview("updatedBlock", block);
             break;
           case "getBlockState":
