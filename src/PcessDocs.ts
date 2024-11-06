@@ -63,7 +63,7 @@ export async function processJson(
       }
 
       try {
-        if (block.type === "snippet") {
+        if (block.type === "snippet" || block.type === "token") {
           processedData.blocks[i] = await verifySnippet(block);
         } else if (block.type === "path") {
           // For path type blocks, just verify the path exists

@@ -36,6 +36,8 @@ const FileExlorerModel_1 = __importDefault(require("./FileExplorer/FileExlorerMo
 const FilePath_1 = __importDefault(require("./FilePath/FilePath"));
 const AddSnippet_1 = __importDefault(require("./AddSnippetModel/AddSnippet"));
 const VscodeSendMessage_1 = __importDefault(require("../utils/VscodeSendMessage"));
+const TokenModel_1 = __importDefault(require("./AddToken/TokenModel"));
+const TockenView_1 = __importDefault(require("./Token/TockenView"));
 const Home = () => {
     const dispatch = (0, react_redux_1.useDispatch)();
     // Get the entire docs state to ensure we don't miss updates
@@ -46,6 +48,7 @@ const Home = () => {
     const [listening, setListening] = (0, react_1.useState)(false);
     const [isFileExOpen, setIsFileExOpen] = (0, react_1.useState)(false);
     const [isAddModel, setIsAddModel] = (0, react_1.useState)(false);
+    const [isTokenModel, setIsTokenModel] = (0, react_1.useState)(false);
     // Update local title when docs title changes
     (0, react_1.useEffect)(() => {
         setLocalTitle(docs.title);
@@ -125,12 +128,13 @@ const Home = () => {
     // Memoize blocks rendering
     const renderedBlocks = (0, react_1.useMemo)(() => docs.blocks?.map((item) => (item.type === "snippet"
         ? <Highlighter_1.default key={item.id} item={item}/>
-        : <FilePath_1.default key={item.id} item={item}/>)), [docs.blocks]);
+        : item.type === "path" ? <FilePath_1.default key={item.id} item={item}/> : <TockenView_1.default key={item.id} item={item}/>)), [docs.blocks]);
     return (<div className="flex mt-5 mb-5 justify-center w-full">
             {isAddModel && (<AddSnippet_1.default handleAddToDocs={() => {
                 sendMessage("alert", "this is test");
                 setIsAddModel(false);
             }} handleClose={() => setIsAddModel(false)}/>)}
+            {isTokenModel && (<TokenModel_1.default handleClose={() => setIsTokenModel(false)}/>)}
 
             {isFileExOpen && <FileExlorerModel_1.default handleAddDocs={handleAddDocs}/>}
 
@@ -157,6 +161,9 @@ const Home = () => {
                     </Button_1.default>
                     <Button_1.default onClick={() => setIsFileExOpen(true)}>
                         Add Path
+                    </Button_1.default>
+                    <Button_1.default onClick={() => setIsTokenModel(true)}>
+                        Add Token
                     </Button_1.default>
                 </div>
             </div>

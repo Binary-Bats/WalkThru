@@ -18,13 +18,17 @@ type Path = {
 
 }
 
+type Props = {
+    handleClose: () => void
+}
 
-const TokenModel = () => {
+
+const TokenModel = ({ handleClose }: Props) => {
 
     return (
         <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center p-4 z-[100]">
 
-            <Token />
+            <Token handleClose={handleClose} />
         </div>
     );
 };

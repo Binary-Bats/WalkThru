@@ -9,6 +9,9 @@ import FilePath from './FilePath/FilePath';
 import AddSnippet from './AddSnippetModel/AddSnippet';
 import vscode from '../utils/VscodeSendMessage';
 import { AppState } from '../redux-store/docStore';
+import Token from './AddToken/Token';
+import TokenModel from './AddToken/TokenModel';
+import TokenView from './Token/TockenView';
 
 type Snippet = {
     path: string;
@@ -39,6 +42,7 @@ const Home = () => {
     const [listening, setListening] = useState(false);
     const [isFileExOpen, setIsFileExOpen] = useState(false);
     const [isAddModel, setIsAddModel] = useState(false);
+    const [isTokenModel, setIsTokenModel] = useState(false);
 
     // Update local title when docs title changes
     useEffect(() => {
@@ -130,7 +134,7 @@ const Home = () => {
         docs.blocks?.map((item: CodeDocs) => (
             item.type === "snippet"
                 ? <Highlighter key={item.id} item={item} />
-                : <FilePath key={item.id} item={item} />
+                : item.type === "path" ? <FilePath key={item.id} item={item} /> : <TokenView key={item.id} item={item} />
         )),
         [docs.blocks]);
 
@@ -145,6 +149,7 @@ const Home = () => {
                     handleClose={() => setIsAddModel(false)}
                 />
             )}
+            {isTokenModel && (<TokenModel handleClose={() => setIsTokenModel(false)} />)}
 
             {isFileExOpen && <FileExplorerModal handleAddDocs={handleAddDocs} />}
 
@@ -177,6 +182,9 @@ const Home = () => {
                     </Button>
                     <Button onClick={() => setIsFileExOpen(true)}>
                         Add Path
+                    </Button>
+                    <Button onClick={() => setIsTokenModel(true)}>
+                        Add Token
                     </Button>
                 </div>
             </div>
