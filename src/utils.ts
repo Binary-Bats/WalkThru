@@ -248,7 +248,9 @@ export async function verifySnippet(snippetBlock: SnippetBlock) {
 
   // Validate file existence
   if (!fs.existsSync(fileUri.fsPath)) {
-    throw new Error(`File not found: ${codeFile}`);
+    snippetBlock.obsolete = true;
+
+    return snippetBlock;
   }
 
   // Read file content using fs.readFileSync with string path
