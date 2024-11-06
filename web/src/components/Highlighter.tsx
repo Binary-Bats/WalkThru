@@ -241,7 +241,7 @@ export default function Highlighter({ item: initialItem }: HighlighterProps) {
         <div className="flex justify-center mb-5 w-full">
             <div className="w-[100%]  rounded-2xl overflow-hidden bg-[#1e1e1e79]" style={containerStyle}>
                 <div className="flex justify-center px-1 mt-3  " >
-                    <div className="bg-[#b3b3b4] w-[95%] rounded-2xl px-10 py-5 text-lg flex items-center" style={headerStyle}>
+                    <div className="bg-[#b3b3b4] w-[95%] rounded-2xl px-5 py-5 text-lg flex items-center" style={headerStyle}>
                         <File size={16} className="mr-2 text-[#858585]" />
                         <span className=" "><Path path={item.data.path} type={"snippet"} startLine={item.data.line_start} endLine={item.data.line_end}> {item.data.path}</Path></span>
 
