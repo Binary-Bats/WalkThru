@@ -88,12 +88,13 @@ const TokenView = ({ item: initialItem }) => {
         setListening(true);
     };
     (0, react_1.useEffect)(() => {
-    });
-    (0, react_1.useEffect)(() => {
         // console.log('Highlighter item changed:', initialItem);
+        setPreviewItem(null);
         setItem(initialItem);
         if (initialItem.updated) {
-            sendMessage("getBlockState", initialItem);
+            if (!initialItem.obsolete) {
+                sendMessage("getBlockState", initialItem);
+            }
         }
     }, [initialItem]);
     (0, react_1.useEffect)(() => {

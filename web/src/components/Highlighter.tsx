@@ -43,7 +43,37 @@ type HighlighterProps = {
 
 }
 
+function getChangedLineNumbers(outdatedSnippet, updatedSnippet) {
+    const changedLines = [];
+    outdatedSnippet = outdatedSnippet.split('\n');
+    updatedSnippet = updatedSnippet.split('\n');
 
+    // Get the minimum length to avoid out-of-bounds errors
+    const minLength = Math.min(outdatedSnippet.length, updatedSnippet.length);
+
+    // Compare lines within the length of the shorter snippet
+    for (let i = 0; i < minLength; i++) {
+        if (outdatedSnippet[i] !== updatedSnippet[i]) {
+            changedLines.push(i + 1); // Line numbers are 1-based
+        }
+    }
+
+    // If the updated snippet has extra lines, add those as changed lines
+    if (updatedSnippet.length > outdatedSnippet.length) {
+        for (let i = minLength; i < updatedSnippet.length; i++) {
+            changedLines.push(i + 1); // Adding remaining lines from updated snippet
+        }
+    }
+
+    // If the outdated snippet has extra lines that aren't in updatedSnippet, add them as changed
+    if (outdatedSnippet.length > updatedSnippet.length) {
+        for (let i = minLength; i < outdatedSnippet.length; i++) {
+            changedLines.push(i + 1); // Adding remaining lines from outdated snippet
+        }
+    }
+
+    return changedLines;
+}
 
 export default function Highlighter({ item: initialItem }: HighlighterProps) {
 
@@ -56,6 +86,8 @@ export default function Highlighter({ item: initialItem }: HighlighterProps) {
     const [listening, setListening] = useState(false);
     const [item, setItem] = useState(initialItem);
     const [isAddModel, setIsAddModel] = useState(false)
+    const [prevItem, setPrevItem] = useState(null);
+    const [lines, setLines] = useState([])
 
 
 
@@ -70,7 +102,11 @@ export default function Highlighter({ item: initialItem }: HighlighterProps) {
 
     useEffect(() => {
         // console.log('Highlighter item changed:', initialItem);
+        setLines([])
         setItem(initialItem)
+        if (initialItem.updated) {
+            sendMessage("prevCode", initialItem)
+        }
 
     }, [initialItem]);
 
@@ -109,9 +145,18 @@ export default function Highlighter({ item: initialItem }: HighlighterProps) {
             }
             if (message.command === 'blockState') {
                 handlePrevious(message.data.state)
+            } if (message.command === 'prevCode') {
+                setListening(false)
+                console.log("prevCode", message.data, initialItem)
+                console.log("prevCode", message.data, initialItem)
+                console.log(item)
+                console.log("Are they equal?", message.data === initialItem)
+                console.log("Types:", typeof message.data, typeof initialItem)
+                setPrevItem(message.data.state)
             }
         };
 
+        console.log("listening", initialItem)
         window.addEventListener('message', handleMessage);
 
         // Clean up the listener when not needed
@@ -120,6 +165,16 @@ export default function Highlighter({ item: initialItem }: HighlighterProps) {
         };
     }, [listening]);
 
+    useEffect(() => {
+        if (prevItem) {
+            console.log("prevItem------------", prevItem)
+            console.log("item-------------", initialItem)
+            const changedLines = getChangedLineNumbers(prevItem?.data.text, initialItem.data.text);
+            console.log("changedLines", changedLines)
+            setLines(changedLines)
+        }
+
+    }, [prevItem])
 
 
 
@@ -264,6 +319,13 @@ export default function Highlighter({ item: initialItem }: HighlighterProps) {
                             paddingRight: '1em',
                             textAlign: 'right',
                             userSelect: 'none'
+                        }}
+                        lineProps={lineNumber => {
+                            let style = { display: 'block', width: '50rem' };
+                            if (lines.includes(lineNumber - item.data.line_start + 1)) {
+                                style.backgroundColor = '#5B4A1E';
+                            }
+                            return { style };
                         }}
                         wrapLines={true}
                     >

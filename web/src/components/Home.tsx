@@ -106,6 +106,7 @@ const Home = () => {
     };
 
     const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setIsEditing(true);
         if (isEditing) {
             setLocalTitle(e.target.value);
             setIsSaved(false);
@@ -159,12 +160,15 @@ const Home = () => {
                         onChange={handleTitleChange}
                         className={`bg-transparent text-white text-[2rem] sm:text-[2.5rem] md:text-[3rem] lg:text-[3.5rem] xl:text-[4rem] font-bold focus:outline-none 
                             ${isEditing ? 'border-blue-500' : 'border-transparent'}
-                            pb-1 w-full ${!isEditing && 'cursor-not-allowed'}`}
-                        readOnly={!isEditing}
+                            pb-1 w-full `}
+
                     />
-                    <Button onClick={handleSaveClick}>
+                    {/* <Button onClick={handleSaveClick}>
                         {isEditing ? 'Save' : 'Update'}
-                    </Button>
+                    </Button> */}
+                    {isEditing && <Button onClick={handleSaveClick}>
+                        save
+                    </Button>}
                 </div>
 
                 <div className="border-b border-gray-600 mb-4" />

@@ -42,6 +42,32 @@ function detectLanguage(fileName) {
     const language = languageMap_json_1.default;
     return language[ext].toLowerCase() || "Unknown language";
 }
+function getChangedLineNumbers(outdatedSnippet, updatedSnippet) {
+    const changedLines = [];
+    outdatedSnippet = outdatedSnippet.split('\n');
+    updatedSnippet = updatedSnippet.split('\n');
+    // Get the minimum length to avoid out-of-bounds errors
+    const minLength = Math.min(outdatedSnippet.length, updatedSnippet.length);
+    // Compare lines within the length of the shorter snippet
+    for (let i = 0; i < minLength; i++) {
+        if (outdatedSnippet[i] !== updatedSnippet[i]) {
+            changedLines.push(i + 1); // Line numbers are 1-based
+        }
+    }
+    // If the updated snippet has extra lines, add those as changed lines
+    if (updatedSnippet.length > outdatedSnippet.length) {
+        for (let i = minLength; i < updatedSnippet.length; i++) {
+            changedLines.push(i + 1); // Adding remaining lines from updated snippet
+        }
+    }
+    // If the outdated snippet has extra lines that aren't in updatedSnippet, add them as changed
+    if (outdatedSnippet.length > updatedSnippet.length) {
+        for (let i = minLength; i < outdatedSnippet.length; i++) {
+            changedLines.push(i + 1); // Adding remaining lines from outdated snippet
+        }
+    }
+    return changedLines;
+}
 function Highlighter({ item: initialItem }) {
     const docs = (0, react_redux_1.useSelector)((state) => {
         return state?.docs.docs;
@@ -50,6 +76,8 @@ function Highlighter({ item: initialItem }) {
     const [listening, setListening] = (0, react_1.useState)(false);
     const [item, setItem] = (0, react_1.useState)(initialItem);
     const [isAddModel, setIsAddModel] = (0, react_1.useState)(false);
+    const [prevItem, setPrevItem] = (0, react_1.useState)(null);
+    const [lines, setLines] = (0, react_1.useState)([]);
     const sendMessage = (command, data) => {
         VscodeSendMessage_1.default?.postMessage({
             command: command,
@@ -59,7 +87,11 @@ function Highlighter({ item: initialItem }) {
     };
     (0, react_1.useEffect)(() => {
         // console.log('Highlighter item changed:', initialItem);
+        setLines([]);
         setItem(initialItem);
+        if (initialItem.updated) {
+            sendMessage("prevCode", initialItem);
+        }
     }, [initialItem]);
     // console.log('Highlighter render:', item);
     (0, react_1.useEffect)(() => {
@@ -88,13 +120,32 @@ function Highlighter({ item: initialItem }) {
             if (message.command === 'blockState') {
                 handlePrevious(message.data.state);
             }
+            if (message.command === 'prevCode') {
+                setListening(false);
+                console.log("prevCode", message.data, initialItem);
+                console.log("prevCode", message.data, initialItem);
+                console.log(item);
+                console.log("Are they equal?", message.data === initialItem);
+                console.log("Types:", typeof message.data, typeof initialItem);
+                setPrevItem(message.data.state);
+            }
         };
+        console.log("listening", initialItem);
         window.addEventListener('message', handleMessage);
         // Clean up the listener when not needed
         return () => {
             window.removeEventListener('message', handleMessage);
         };
     }, [listening]);
+    (0, react_1.useEffect)(() => {
+        if (prevItem) {
+            console.log("prevItem------------", prevItem);
+            console.log("item-------------", initialItem);
+            const changedLines = getChangedLineNumbers(prevItem?.data.text, initialItem.data.text);
+            console.log("changedLines", changedLines);
+            setLines(changedLines);
+        }
+    }, [prevItem]);
     const handlePrevious = (data) => {
         addToDocs(data);
     };
@@ -210,6 +261,12 @@ function Highlighter({ item: initialItem }) {
             paddingRight: '1em',
             textAlign: 'right',
             userSelect: 'none'
+        }} lineProps={lineNumber => {
+            let style = { display: 'block', width: '50rem' };
+            if (lines.includes(lineNumber - item.data.line_start + 1)) {
+                style.backgroundColor = '#5B4A1E';
+            }
+            return { style };
         }} wrapLines={true}>
                         {item.data.text}
                     </react_syntax_highlighter_1.Prism>

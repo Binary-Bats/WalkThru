@@ -137,6 +137,17 @@ export default class MyPanel {
               }
             }
             break;
+          case "prevCode":
+            if (message.data?.id) {
+              const state = this.blockStates.get(message.data.id);
+              if (state) {
+                this.sendMsgToWebview("prevCode", {
+                  id: message.data.id,
+                  state: state.content,
+                });
+              }
+            }
+            break;
 
           case "removeBlockState":
             if (message.data?.id) {

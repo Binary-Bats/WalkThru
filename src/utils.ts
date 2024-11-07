@@ -322,6 +322,11 @@ export async function updateSnippet(snippetBlock) {
   // Construct file path
   const workspaceRoot = workspaceFolders[0].uri;
   const fileUri = vscode.Uri.joinPath(workspaceRoot, codeFile);
+  if (!fs.existsSync(fileUri.fsPath)) {
+    snippetBlock.obsolete = true;
+
+    return snippetBlock;
+  }
 
   const fileContent = fs.readFileSync(fileUri.fsPath, "utf8");
 
@@ -549,3 +554,121 @@ export async function updateCodeTag(snippetBlock) {
     };
   }
 }
+// function processCodeTag(bestMatchArray, snippetBlock) {
+//   let updatedCodeTagArray = [];
+//   let outdatedCodeTag = snippetBlock.data["tag"].split("");
+//   let updatedStartPos = null;
+
+//   for (let j = 0; j < bestMatchArray.length; j++) {
+//     let i = 0,
+//       k = 0;
+//     let newCodeTag = [];
+//     let bestMatchLine = bestMatchArray[j]["matchedText"];
+//     bestMatchLine = bestMatchLine.split("");
+
+//     while (i < bestMatchLine.length) {
+//       if (
+//         bestMatchLine[i] == outdatedCodeTag[k] &&
+//         isAlphanumeric(bestMatchLine[i])
+//       ) {
+//         if (updatedStartPos == null) {
+//           updatedStartPos = i;
+//         }
+//         newCodeTag += bestMatchLine[i];
+//         i++;
+//         k++;
+//       } else if (
+//         bestMatchLine[i] != outdatedCodeTag[k] &&
+//         isAlphanumeric(bestMatchLine[i])
+//       ) {
+//         if (updatedStartPos == null) {
+//           updatedStartPos = i;
+//         }
+//         newCodeTag += bestMatchLine[i];
+//         i++;
+//       } else {
+//         let matchPercentage = calculateTagMatchPer(
+//           outdatedCodeTag.join(""),
+//           newCodeTag
+//         );
+//         if (matchPercentage >= 50) {
+//           updatedCodeTagArray.push({
+//             updatedCodeTag: newCodeTag,
+//             codeMatchPercentage: matchPercentage,
+//             lineText: bestMatchLine.join(""),
+//             lineNumber: bestMatchArray[j]["lineNumber"],
+//           });
+//           newCodeTag = [];
+//           updatedStartPos = null;
+//           i++;
+//           k = 0;
+//           continue;
+//         }
+//         newCodeTag = [];
+//         updatedStartPos = null;
+//         i++;
+//         k = 0;
+//       }
+//     }
+//   }
+
+//   if (updatedCodeTagArray.length > 0) {
+//     updatedCodeTagArray.sort(function (a, b) {
+//       return b.codeMatchPercentage - a.codeMatchPercentage;
+//     });
+//     return updatedCodeTagArray[0];
+//   } else {
+//     return null;
+//   }
+// }
+
+// export async function updateCodeTag(snippetBlock) {
+//   const outdatedSnippet = snippetBlock.data.text.split("\n");
+//   let matchThreshold = 70;
+//   let multi = false;
+//   const lineStart = snippetBlock.data["line_start"];
+//   const lineEnd = snippetBlock.data["line_end"];
+//   const codeFile = snippetBlock.data.path;
+
+//   // Get workspace
+//   const workspaceFolders = vscode.workspace.workspaceFolders;
+//   if (!workspaceFolders?.length) {
+//     throw new Error("No workspace folder found");
+//   }
+
+//   // Construct file path
+//   const workspaceRoot = workspaceFolders[0].uri;
+//   const fileUri = vscode.Uri.joinPath(workspaceRoot, codeFile);
+//   if (!fs.existsSync(fileUri.fsPath)) {
+//     snippetBlock.obsolete = true;
+
+//     return snippetBlock;
+//   }
+
+//   const fileContent = fs.readFileSync(fileUri.fsPath, "utf8");
+//   // const fileContent = fs.readFileSync(codeFile, 'utf8');
+//   let bestMatchArray = await findBestMatch(
+//     fileContent,
+//     outdatedSnippet[0],
+//     multi,
+//     matchThreshold
+//   );
+
+//   if (bestMatchArray == null) {
+//     snippetBlock.obsolete = true;
+//     return snippetBlock;
+//   }
+
+//   const updatedCodeTag = processCodeTag(bestMatchArray, snippetBlock);
+//   if (updatedCodeTag == null) {
+//     snippetBlock.obsolete = true;
+//     return snippetBlock;
+//   }
+//   snippetBlock.data["tag"] = updatedCodeTag.updatedCodeTag;
+//   snippetBlock.data.text = updatedCodeTag.lineText;
+//   snippetBlock.data["line_start"] = updatedCodeTag.lineNumber;
+//   snippetBlock.data["line_end"] = updatedCodeTag.lineNumber;
+//   snippetBlock.obsolete = false;
+//   snippetBlock.outdated = false;
+//   return snippetBlock;
+// }

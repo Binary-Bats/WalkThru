@@ -96,14 +96,15 @@ const TokenView: React.FC<FilePathProps> = ({ item: initialItem }) => {
         setListening(true);
     };
 
-    useEffect(() => {
 
-    })
     useEffect(() => {
         // console.log('Highlighter item changed:', initialItem);
+        setPreviewItem(null)
         setItem(initialItem)
         if (initialItem.updated) {
-            sendMessage("getBlockState", initialItem)
+            if (!initialItem.obsolete) {
+                sendMessage("getBlockState", initialItem)
+            }
         }
 
     }, [initialItem]);
