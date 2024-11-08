@@ -297,11 +297,11 @@ export default function Highlighter({ item: initialItem }: HighlighterProps) {
         <div className="flex justify-center mb-5 w-full">
             <div className="w-[100%]  rounded-2xl overflow-hidden bg-[#1e1e1e79]" style={containerStyle}>
                 <div className="flex justify-center px-1 mt-3  " >
-                    <div className="bg-[#b3b3b4] w-[95%] rounded-2xl px-5 py-3 text-lg flex items-center" style={headerStyle}>
+                    <div className="bg-[#b3b3b4] w-[95%] rounded-xl px-5 py-3 text-base flex items-center" style={headerStyle}>
                         <File size={16} className="mr-2 text-[#858585]" />
                         <span className=" "><Path path={item.data.path} type={"snippet"} startLine={item.data.line_start} endLine={item.data.line_end}> {item.data.path}</Path></span>
 
-                        {item.outdated ? <span className="ml-auto flex gap-2 items-center text-[#ff5c5c] "> <TriangleAlert className="w-4 h-4" size={16} /> Outdated</span> : item.obsolete ? <span className="ml-auto flex items-center gap-2 text-[#ff5c5c] "> <CircleSlash className="w-4 h-4" size={16} /> Obsolete</span> : <span className="ml-auto flex items-center text-[#3fab53] ">{item.updated ? <span className="flex items-center gap-2"><Check className="w-4 h-4" size={16} /> Snippet Updated</span > : <span className="flex items-center gap-2"><CheckCheck className="w-4 h-4" size={16} /> Snippet Synced</span>}</span>}
+                        {item.outdated ? <span className="ml-auto flex gap-2 items-center text-[#FFB284] "> <TriangleAlert className="w-4 h-4" size={16} /> Out of Sync</span> : item.obsolete ? <span className="ml-auto flex items-center gap-2 text-[#ff5c5c] "> <CircleSlash className="w-4 h-4" size={16} /> Obsolete</span> : <span className="ml-auto flex items-center text-[#3fab53] ">{item.updated ? <span className="flex items-center gap-2"><Check className="w-4 h-4" size={16} /> Snippet Updated</span > : <span className="flex items-center gap-2"><CheckCheck className="w-4 h-4" size={16} /> Snippet Synced</span>}</span>}
 
                     </div>
                 </div>
@@ -334,13 +334,13 @@ export default function Highlighter({ item: initialItem }: HighlighterProps) {
                     </SyntaxHighlighter>
                 </div>
                 {item.outdated ? <div className="flex justify-center px-1 mb-3  " >
-                    <div className="  justify-end w-[95%] rounded-2xl px-8 py-3 text-lg flex items-center" style={headerStyle}>
+                    <div className="  justify-end w-[95%] rounded-xl px-5 py-2 text-sm flex items-center" style={headerStyle}>
                         <div className="flex gap-3">
 
                             <button onClick={() => {
                                 console.log("Update snippet--------", item)
                                 sendMessage("update", item)
-                            }} className="px-4 py-[2px] rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors duration-200">
+                            }} className="px-4 py-[4px]  rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors duration-200">
                                 Update
                             </button>
                         </div>
@@ -348,24 +348,24 @@ export default function Highlighter({ item: initialItem }: HighlighterProps) {
                     </div>
                 </div> : ""}
                 {item.obsolete ? <div className="flex justify-center px-1 mb-3  " >
-                    <div className="  justify-end w-[95%] rounded-2xl px-8 py-3 text-lg flex items-center" style={headerStyle}>
+                    <div className="  justify-end w-[95%] rounded-xl px-5 py-2 text-sm flex items-center" style={headerStyle}>
                         <div className="flex gap-3">
-                            <button onClick={() => handleRemove(item)} className="px-4 py-[2px] rounded-lg text-gray-300 hover:bg-zinc-800 transition-colors duration-200 border border-zinc-700">
+                            <button onClick={() => handleRemove(item)} className="px-4 py-[4px] rounded-lg text-gray-300 hover:bg-zinc-800 transition-colors duration-200 border border-zinc-700">
                                 Remove
                             </button>
                             <button onClick={() => {
                                 setIsAddModel(true)
                                 sendMessage("focusEditor")
                                 sendMessage("openDocs", { path: item.data.path, startLine: item.data.line_start, endLine: item.data.line_end })
-                            }} className="px-4 py-[2px] rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors duration-200">
+                            }} className="px-4 py-[4px] rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors duration-200">
                                 Reselect
                             </button>
                         </div>
 
                     </div>
                 </div> : item.updated ? <div className="flex justify-center px-1 mb-3  " >
-                    <div className=" w-[95%] rounded-2xl px-8 py-3 text-lg flex justify-between items-center p-4" style={headerStyle}>
-                        <button onClick={() => sendMessage("getBlockState", item)} className="px-4 py-[2px] rounded-lg text-gray-300  hover:bg-gray-600 transition-colors duration-200 border ">
+                    <div className=" w-[95%] rounded-xl px-5 py-2 text-sm flex justify-between items-center p-4" style={headerStyle}>
+                        <button onClick={() => sendMessage("getBlockState", item)} className="px-4 py-[4px] rounded-lg text-gray-300  hover:bg-gray-600 transition-colors duration-200 border ">
                             Previous
                         </button>
 
@@ -374,7 +374,7 @@ export default function Highlighter({ item: initialItem }: HighlighterProps) {
                                 setIsAddModel(true)
                                 sendMessage("focusEditor")
                                 sendMessage("openDocs", { path: item.data.path, startLine: item.data.line_start, endLine: item.data.line_end })
-                            }} className="px-4 py-[2px] rounded-lg text-gray-300  hover:bg-gray-600 transition-colors duration-200 border ">
+                            }} className="px-4 py-[4px] rounded-lg text-gray-300  hover:bg-gray-600 transition-colors duration-200 border ">
                                 Reselect
                             </button>
                             <button onClick={() => {
@@ -385,7 +385,7 @@ export default function Highlighter({ item: initialItem }: HighlighterProps) {
                                     data: nitem
                                 });
                                 addToDocs(nitem)
-                            }} className="px-4 py-[2px] rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors duration-200">
+                            }} className="px-4 py-[4px] rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors duration-200">
                                 Add to Doc
                             </button>
                         </div>

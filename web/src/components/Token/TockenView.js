@@ -230,7 +230,7 @@ const TokenView = ({ item: initialItem }) => {
                                             {item.data.path}
                                         </Path_1.default> </span>
                                     </div>
-                                    {item.outdated ? <span className="ml-auto flex gap-2 items-center text-[#ff5c5c] "> <lucide_react_1.TriangleAlert className="w-4 h-4" size={16}/> Out of Sync</span> : item.obsolete ? <span className="ml-auto flex gap-2 items-center text-[#ff5c5c] "> <lucide_react_1.CircleSlash className='w-4 h-4' size={16}/> Obsolete</span> : <span className="ml-auto text-[#3fab53] ">{item.updated ? <span className='flex gap-2 items-center'><lucide_react_1.Check className="w-4 h-4" size={16}/>Code Tag Updated</span> : <span className='flex gap-2 items-center'><lucide_react_1.CheckCheck className="w-4 h-4" size={16}/> Synced</span>}</span>}
+                                    {item.outdated ? <span className="ml-auto flex gap-2 items-center text-[#FFB284] "> <lucide_react_1.TriangleAlert className="w-4 h-4" size={16}/> Out of Sync</span> : item.obsolete ? <span className="ml-auto flex gap-2 items-center text-[#ff5c5c] "> <lucide_react_1.CircleSlash className='w-4 h-4' size={16}/> Obsolete</span> : <span className="ml-auto text-[#3fab53] ">{item.updated ? <span className='flex gap-2 items-center'><lucide_react_1.Check className="w-4 h-4" size={16}/>Code Tag Updated</span> : <span className='flex gap-2 items-center'><lucide_react_1.CheckCheck className="w-4 h-4" size={16}/> Synced</span>}</span>}
                                 </div>
                                 <div className='mt-2 mb-2 pr-2 flex flex-col'>
                                     {previewItem && (<div className="w-full">
@@ -309,10 +309,10 @@ const TokenView = ({ item: initialItem }) => {
 
 
                     </div>
-                    {item.outdated ? <span className="ml-auto text-[#ff5c5c]  " onClick={() => {
+                    {item.outdated ? <span className="ml-auto  " onClick={() => {
                 console.log("Update snippet--------", item);
                 sendMessage("update", item);
-            }}> <lucide_react_1.RefreshCw className="w-4 h-4 cursor-pointer hover:rotate-45" size={16}/></span> : item.obsolete ? <span className="ml-auto text-[#ff5c5c] "> <lucide_react_1.CircleSlash className='w-4 h-4' size={16}/> </span> : <span className="ml-auto text-[#3fab53] ">{item.updated ? <span><lucide_react_1.Check className="w-4 h-4" size={16}/></span> : <lucide_react_1.CheckCheck className="w-4 h-4" size={16}/>}</span>}
+            }}> <lucide_react_1.RefreshCw className="w-4 h-4 text-[#FFB284] cursor-pointer hover:rotate-45" size={16}/></span> : item.obsolete ? <span className="ml-auto text-[#ff5c5c] "> <lucide_react_1.CircleSlash className='w-4 h-4' size={16}/> </span> : <span className="ml-auto text-[#3fab53] ">{item.updated ? <span><lucide_react_1.Check className="w-4 h-4" size={16}/></span> : <lucide_react_1.CheckCheck className="w-4 h-4" size={16}/>}</span>}
                 </div>
             </div>
         </div>);

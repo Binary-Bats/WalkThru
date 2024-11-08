@@ -271,7 +271,7 @@ const TokenView: React.FC<FilePathProps> = ({ item: initialItem }) => {
                                             {item.data.path}
                                         </Path> </span>
                                     </div>
-                                    {item.outdated ? <span className="ml-auto flex gap-2 items-center text-[#ff5c5c] "> <TriangleAlert className="w-4 h-4" size={16} /> Out of Sync</span> : item.obsolete ? <span className="ml-auto flex gap-2 items-center text-[#ff5c5c] "> <CircleSlash className='w-4 h-4' size={16} /> Obsolete</span> : <span className="ml-auto text-[#3fab53] ">{item.updated ? <span className='flex gap-2 items-center'><Check className="w-4 h-4" size={16} />Code Tag Updated</span> : <span className='flex gap-2 items-center'><CheckCheck className="w-4 h-4" size={16} /> Synced</span>}</span>}
+                                    {item.outdated ? <span className="ml-auto flex gap-2 items-center text-[#FFB284] "> <TriangleAlert className="w-4 h-4" size={16} /> Out of Sync</span> : item.obsolete ? <span className="ml-auto flex gap-2 items-center text-[#ff5c5c] "> <CircleSlash className='w-4 h-4' size={16} /> Obsolete</span> : <span className="ml-auto text-[#3fab53] ">{item.updated ? <span className='flex gap-2 items-center'><Check className="w-4 h-4" size={16} />Code Tag Updated</span> : <span className='flex gap-2 items-center'><CheckCheck className="w-4 h-4" size={16} /> Synced</span>}</span>}
                                 </div>
                                 <div className='mt-2 mb-2 pr-2 flex flex-col'>
                                     {previewItem && (
@@ -374,10 +374,10 @@ const TokenView: React.FC<FilePathProps> = ({ item: initialItem }) => {
 
 
                     </div>
-                    {item.outdated ? <span className="ml-auto text-[#ff5c5c]  " onClick={() => {
+                    {item.outdated ? <span className="ml-auto  " onClick={() => {
                         console.log("Update snippet--------", item)
                         sendMessage("update", item)
-                    }}> <RefreshCw className="w-4 h-4 cursor-pointer hover:rotate-45" size={16} /></span> : item.obsolete ? <span className="ml-auto text-[#ff5c5c] "> <CircleSlash className='w-4 h-4' size={16} /> </span> : <span className="ml-auto text-[#3fab53] ">{item.updated ? <span><Check className="w-4 h-4" size={16} /></span> : <CheckCheck className="w-4 h-4" size={16} />}</span>}
+                    }}> <RefreshCw className="w-4 h-4 text-[#FFB284] cursor-pointer hover:rotate-45" size={16} /></span> : item.obsolete ? <span className="ml-auto text-[#ff5c5c] "> <CircleSlash className='w-4 h-4' size={16} /> </span> : <span className="ml-auto text-[#3fab53] ">{item.updated ? <span><Check className="w-4 h-4" size={16} /></span> : <CheckCheck className="w-4 h-4" size={16} />}</span>}
                 </div>
             </div>
         </div>
