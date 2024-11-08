@@ -223,7 +223,7 @@ const TokenView = ({ item: initialItem }) => {
 
                         <div className="bg-[#5B1E31]  w-[80%] rounded-xl p-3 shadow-xl border border-zinc-700/50 whitespace-nowrap" style={containerStyle}>
                             <div className="flex flex-col justify-center">
-                                <div className="flex w-full rounded-xl px-4 py-4 bg-[#351F27] justify-between" style={headerStyle}>
+                                <div className="flex w-full rounded-xl px-4 py-3 bg-[#351F27] justify-between" style={headerStyle}>
                                     <div className=" rounded-md flex items-center gap-2">
 
                                         <span><Path_1.default path={item.data.path} type={item.type} startLine={item.data.line_start} endLine={item.data.line_end}>
@@ -250,7 +250,7 @@ const TokenView = ({ item: initialItem }) => {
                                         <button onClick={() => {
                     console.log("Update snippet--------", item);
                     sendMessage("update", item);
-                }} className="px-2 py-1 rounded-md bg-blue-600 text-white hover:bg-blue-700 transition-colors duration-200">
+                }} className="px-2 py-[2px] rounded-md bg-blue-600 text-white hover:bg-blue-700 transition-colors duration-200">
                                             Update
                                         </button>
                                     </div>

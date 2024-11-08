@@ -76,8 +76,8 @@ function Highlighter({ item: initialItem }) {
     const [listening, setListening] = (0, react_1.useState)(false);
     const [item, setItem] = (0, react_1.useState)(initialItem);
     const [isAddModel, setIsAddModel] = (0, react_1.useState)(false);
-    const [prevItem, setPrevItem] = (0, react_1.useState)(null);
-    const [lines, setLines] = (0, react_1.useState)([]);
+    // const [prevItem, setPrevItem] = useState(null);
+    // const [lines, setLines] = useState([])
     const sendMessage = (command, data) => {
         VscodeSendMessage_1.default?.postMessage({
             command: command,
@@ -87,11 +87,11 @@ function Highlighter({ item: initialItem }) {
     };
     (0, react_1.useEffect)(() => {
         // console.log('Highlighter item changed:', initialItem);
-        setLines([]);
+        // setLines([])
         setItem(initialItem);
-        if (initialItem.updated) {
-            sendMessage("prevCode", initialItem);
-        }
+        // if (initialItem.updated) {
+        //     sendMessage("prevCode", initialItem)
+        // }
     }, [initialItem]);
     // console.log('Highlighter render:', item);
     (0, react_1.useEffect)(() => {
@@ -120,32 +120,32 @@ function Highlighter({ item: initialItem }) {
             if (message.command === 'blockState') {
                 handlePrevious(message.data.state);
             }
-            if (message.command === 'prevCode') {
-                setListening(false);
-                console.log("prevCode", message.data, initialItem);
-                console.log("prevCode", message.data, initialItem);
-                console.log(item);
-                console.log("Are they equal?", message.data === initialItem);
-                console.log("Types:", typeof message.data, typeof initialItem);
-                setPrevItem(message.data.state);
-            }
+            // if (message.command === 'prevCode') {
+            //     setListening(false)
+            //     console.log("prevCode", message.data, initialItem)
+            //     console.log("prevCode", message.data, initialItem)
+            //     console.log(item)
+            //     console.log("Are they equal?", message.data === initialItem)
+            //     console.log("Types:", typeof message.data, typeof initialItem)
+            //     setPrevItem(message.data.state)
+            // }
         };
-        console.log("listening", initialItem);
+        // console.log("listening", initialItem)
         window.addEventListener('message', handleMessage);
         // Clean up the listener when not needed
         return () => {
             window.removeEventListener('message', handleMessage);
         };
     }, [listening]);
-    (0, react_1.useEffect)(() => {
-        if (prevItem) {
-            console.log("prevItem------------", prevItem);
-            console.log("item-------------", initialItem);
-            const changedLines = getChangedLineNumbers(prevItem?.data.text, initialItem.data.text);
-            console.log("changedLines", changedLines);
-            setLines(changedLines);
-        }
-    }, [prevItem]);
+    // useEffect(() => {
+    //     if (prevItem) {
+    //         console.log("prevItem------------", prevItem)
+    //         console.log("item-------------", initialItem)
+    //         const changedLines = getChangedLineNumbers(prevItem?.data.text, initialItem.data.text);
+    //         console.log("changedLines", changedLines)
+    //         setLines(changedLines)
+    //     }
+    // }, [prevItem])
     const handlePrevious = (data) => {
         addToDocs(data);
     };
@@ -245,7 +245,7 @@ function Highlighter({ item: initialItem }) {
     return (<div className="flex justify-center mb-5 w-full">
             <div className="w-[100%]  rounded-2xl overflow-hidden bg-[#1e1e1e79]" style={containerStyle}>
                 <div className="flex justify-center px-1 mt-3  ">
-                    <div className="bg-[#b3b3b4] w-[95%] rounded-2xl px-5 py-5 text-lg flex items-center" style={headerStyle}>
+                    <div className="bg-[#b3b3b4] w-[95%] rounded-2xl px-5 py-3 text-lg flex items-center" style={headerStyle}>
                         <lucide_react_1.File size={16} className="mr-2 text-[#858585]"/>
                         <span className=" "><Path_1.default path={item.data.path} type={"snippet"} startLine={item.data.line_start} endLine={item.data.line_end}> {item.data.path}</Path_1.default></span>
 
@@ -261,24 +261,26 @@ function Highlighter({ item: initialItem }) {
             paddingRight: '1em',
             textAlign: 'right',
             userSelect: 'none'
-        }} lineProps={lineNumber => {
-            let style = { display: 'block', width: '50rem' };
-            if (lines.includes(lineNumber - item.data.line_start + 1)) {
-                style.backgroundColor = '#5B4A1E';
-            }
-            return { style };
-        }} wrapLines={true}>
+        }} 
+    // lineProps={lineNumber => {
+    //     let style = { display: 'block', width: '50rem' };
+    //     if (lines.includes(lineNumber - item.data.line_start + 1)) {
+    //         style.backgroundColor = '#5B4A1E';
+    //     }
+    //     return { style };
+    // }}
+    wrapLines={true}>
                         {item.data.text}
                     </react_syntax_highlighter_1.Prism>
                 </div>
                 {item.outdated ? <div className="flex justify-center px-1 mb-3  ">
-                    <div className="  justify-end w-[95%] rounded-2xl px-8 py-4 text-lg flex items-center" style={headerStyle}>
+                    <div className="  justify-end w-[95%] rounded-2xl px-8 py-3 text-lg flex items-center" style={headerStyle}>
                         <div className="flex gap-3">
 
                             <button onClick={() => {
                 console.log("Update snippet--------", item);
                 sendMessage("update", item);
-            }} className="px-4 py-2 rounded-xl bg-blue-600 text-white hover:bg-blue-700 transition-colors duration-200">
+            }} className="px-4 py-[2px] rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors duration-200">
                                 Update
                             </button>
                         </div>
@@ -286,24 +288,24 @@ function Highlighter({ item: initialItem }) {
                     </div>
                 </div> : ""}
                 {item.obsolete ? <div className="flex justify-center px-1 mb-3  ">
-                    <div className="  justify-end w-[95%] rounded-2xl px-8 py-4 text-lg flex items-center" style={headerStyle}>
+                    <div className="  justify-end w-[95%] rounded-2xl px-8 py-3 text-lg flex items-center" style={headerStyle}>
                         <div className="flex gap-3">
-                            <button onClick={() => handleRemove(item)} className="px-4 py-2 rounded-lx text-gray-300 hover:bg-zinc-800 transition-colors duration-200 border border-zinc-700">
+                            <button onClick={() => handleRemove(item)} className="px-4 py-[2px] rounded-lg text-gray-300 hover:bg-zinc-800 transition-colors duration-200 border border-zinc-700">
                                 Remove
                             </button>
                             <button onClick={() => {
                 setIsAddModel(true);
                 sendMessage("focusEditor");
                 sendMessage("openDocs", { path: item.data.path, startLine: item.data.line_start, endLine: item.data.line_end });
-            }} className="px-4 py-2 rounded-xl bg-blue-600 text-white hover:bg-blue-700 transition-colors duration-200">
+            }} className="px-4 py-[2px] rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors duration-200">
                                 Reselect
                             </button>
                         </div>
 
                     </div>
                 </div> : item.updated ? <div className="flex justify-center px-1 mb-3  ">
-                    <div className=" w-[95%] rounded-2xl px-8 py-4 text-lg flex justify-between items-center p-4" style={headerStyle}>
-                        <button onClick={() => sendMessage("getBlockState", item)} className="px-4 py-2 rounded-xl text-gray-300  hover:bg-gray-600 transition-colors duration-200 border ">
+                    <div className=" w-[95%] rounded-2xl px-8 py-3 text-lg flex justify-between items-center p-4" style={headerStyle}>
+                        <button onClick={() => sendMessage("getBlockState", item)} className="px-4 py-[2px] rounded-lg text-gray-300  hover:bg-gray-600 transition-colors duration-200 border ">
                             Previous
                         </button>
 
@@ -312,7 +314,7 @@ function Highlighter({ item: initialItem }) {
                 setIsAddModel(true);
                 sendMessage("focusEditor");
                 sendMessage("openDocs", { path: item.data.path, startLine: item.data.line_start, endLine: item.data.line_end });
-            }} className="px-4 py-2 rounded-xl text-gray-300  hover:bg-gray-600 transition-colors duration-200 border ">
+            }} className="px-4 py-[2px] rounded-lg text-gray-300  hover:bg-gray-600 transition-colors duration-200 border ">
                                 Reselect
                             </button>
                             <button onClick={() => {
@@ -323,7 +325,7 @@ function Highlighter({ item: initialItem }) {
                     data: nitem
                 });
                 addToDocs(nitem);
-            }} className="px-4 py-2 rounded-xl bg-blue-600 text-white hover:bg-blue-700 transition-colors duration-200">
+            }} className="px-4 py-[2px] rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors duration-200">
                                 Add to Doc
                             </button>
                         </div>
