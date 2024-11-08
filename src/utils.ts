@@ -450,110 +450,227 @@ function calculateTagMatchPer(outdatedCodeTag, updatedCodeTag) {
   const matchPercentage = (prevContinuousMatch / outdatedCodeTag.length) * 100;
   return matchPercentage;
 }
-
-export async function updateCodeTag(snippetBlock) {
-  console.time("Execution Time");
-  let updatedSnippetBlock = await updateSnippet(snippetBlock);
-  if (updatedSnippetBlock.obsolete) {
-    return {
-      id: snippetBlock.id,
-      type: snippetBlock.type,
-      outdated: snippetBlock["outdated"],
-      obsolete: true,
-      data: {
-        text: snippetBlock.data.text,
-        path: snippetBlock.data.path,
-        line_start: snippetBlock.data["line_start"],
-        line_end: snippetBlock.data["line_end"],
-        tag: snippetBlock.data.tag,
-      },
-    };
-  }
-  let updatedString = updatedSnippetBlock.data.text;
-  let outdatedCodeTag = snippetBlock.data.tag;
-  let updatedLineStart = updatedSnippetBlock.data["line_start"];
-
-  let i = 0,
-    k = 0;
+function processCodeTag(bestMatchArray, snippetBlock) {
   let updatedCodeTagArray = [];
-  let newCodeTag = [];
-  outdatedCodeTag = outdatedCodeTag.split("");
-  updatedString = updatedString.split("");
+  let outdatedCodeTag = snippetBlock.data["tag"].split("");
   let updatedStartPos = null;
 
-  while (i < updatedString.length) {
-    if (
-      updatedString[i] == outdatedCodeTag[k] &&
-      isAlphanumeric(updatedString[i])
-    ) {
-      if (updatedStartPos == null) {
-        updatedStartPos = i;
-      }
-      newCodeTag += updatedString[i];
-      i++;
-      k++;
-    } else if (
-      updatedString[i] != outdatedCodeTag[k] &&
-      isAlphanumeric(updatedString[i])
-    ) {
-      if (updatedStartPos == null) {
-        updatedStartPos = i;
-      }
-      newCodeTag += updatedString[i];
-      i++;
-    } else {
-      let matchPercentage = calculateTagMatchPer(
-        outdatedCodeTag.join(""),
-        newCodeTag
-      );
-      if (matchPercentage >= 50) {
-        updatedCodeTagArray.push({
-          updatedCodeTag: newCodeTag,
-          matchPercentage: matchPercentage,
-        });
+  for (let j = 0; j < bestMatchArray.length; j++) {
+    let i = 0,
+      k = 0;
+    let newCodeTag = [];
+    let bestMatchLine = bestMatchArray[j]["matchedText"];
+    bestMatchLine = bestMatchLine.split("");
+
+    while (i < bestMatchLine.length) {
+      if (
+        bestMatchLine[i] == outdatedCodeTag[k] &&
+        isAlphanumeric(bestMatchLine[i])
+      ) {
+        if (updatedStartPos == null) {
+          updatedStartPos = i;
+        }
+        newCodeTag += bestMatchLine[i];
+        i++;
+        k++;
+      } else if (
+        bestMatchLine[i] != outdatedCodeTag[k] &&
+        isAlphanumeric(bestMatchLine[i])
+      ) {
+        if (updatedStartPos == null) {
+          updatedStartPos = i;
+        }
+        newCodeTag += bestMatchLine[i];
+        i++;
+      } else {
+        let matchPercentage = calculateTagMatchPer(
+          outdatedCodeTag.join(""),
+          newCodeTag
+        );
+        if (matchPercentage >= 50) {
+          updatedCodeTagArray.push({
+            updatedCodeTag: newCodeTag,
+            codeMatchPercentage: matchPercentage,
+            lineText: bestMatchLine.join(""),
+            lineNumber: bestMatchArray[j]["lineNumber"],
+          });
+          newCodeTag = [];
+          updatedStartPos = null;
+          i++;
+          k = 0;
+          continue;
+        }
         newCodeTag = [];
         updatedStartPos = null;
         i++;
         k = 0;
-        continue;
       }
-      newCodeTag = [];
-      updatedStartPos = null;
-      i++;
-      k = 0;
     }
   }
+
   if (updatedCodeTagArray.length > 0) {
-    updatedCodeTagArray.sort((a, b) => b.matchPercentage - a.matchPercentage);
-    return {
-      id: snippetBlock.id,
-      type: snippetBlock.type,
-      outdated: snippetBlock["outdated"],
-      obsolete: false,
-      data: {
-        text: updatedString.join(""),
-        path: snippetBlock.data.path,
-        line_start: updatedLineStart,
-        line_end: updatedLineStart,
-        tag: updatedCodeTagArray[0].updatedCodeTag,
-      },
-    };
+    updatedCodeTagArray.sort(function (a, b) {
+      return b.codeMatchPercentage - a.codeMatchPercentage;
+    });
+    return updatedCodeTagArray[0];
   } else {
-    return {
-      id: snippetBlock.id,
-      type: snippetBlock.type,
-      outdated: snippetBlock["outdated"],
-      obsolete: true,
-      data: {
-        text: snippetBlock.data.text,
-        path: snippetBlock.data.path,
-        line_start: snippetBlock.data["line_start"],
-        line_end: snippetBlock.data["line_end"],
-        tag: snippetBlock.data.tag,
-      },
-    };
+    return null;
   }
 }
+
+export async function updateCodeTag(snippetBlock) {
+  const outdatedSnippet = snippetBlock.data.text.split("\n");
+  let matchThreshold = 70;
+  let multi = false;
+  const lineStart = snippetBlock.data["line_start"];
+  const lineEnd = snippetBlock.data["line_end"];
+  const codeFile = snippetBlock.data.path;
+
+  // Get workspace
+  const workspaceFolders = vscode.workspace.workspaceFolders;
+  if (!workspaceFolders?.length) {
+    throw new Error("No workspace folder found");
+  }
+
+  // Construct file path
+  const workspaceRoot = workspaceFolders[0].uri;
+  const fileUri = vscode.Uri.joinPath(workspaceRoot, codeFile);
+  if (!fs.existsSync(fileUri.fsPath)) {
+    snippetBlock.obsolete = true;
+
+    return snippetBlock;
+  }
+
+  const fileContent = fs.readFileSync(fileUri.fsPath, "utf8");
+  // const fileContent = fs.readFileSync(codeFile, 'utf8');
+  let bestMatchArray = await findBestMatch(
+    fileContent,
+    outdatedSnippet[0],
+    multi,
+    matchThreshold
+  );
+
+  if (bestMatchArray == null) {
+    snippetBlock.obsolete = true;
+    return snippetBlock;
+  }
+
+  const updatedCodeTag = processCodeTag(bestMatchArray, snippetBlock);
+  if (updatedCodeTag == null) {
+    snippetBlock.obsolete = true;
+    return snippetBlock;
+  }
+  snippetBlock.data["tag"] = updatedCodeTag.updatedCodeTag;
+  snippetBlock.data.text = updatedCodeTag.lineText;
+  snippetBlock.data["line_start"] = updatedCodeTag.lineNumber;
+  snippetBlock.data["line_end"] = updatedCodeTag.lineNumber;
+  snippetBlock.obsolete = false;
+  snippetBlock.outdated = true;
+  return snippetBlock;
+}
+// export async function updateCodeTag(snippetBlock) {
+//   console.time("Execution Time");
+//   let updatedSnippetBlock = await updateSnippet(snippetBlock);
+//   if (updatedSnippetBlock.obsolete) {
+//     return {
+//       id: snippetBlock.id,
+//       type: snippetBlock.type,
+//       outdated: snippetBlock["outdated"],
+//       obsolete: true,
+//       data: {
+//         text: snippetBlock.data.text,
+//         path: snippetBlock.data.path,
+//         line_start: snippetBlock.data["line_start"],
+//         line_end: snippetBlock.data["line_end"],
+//         tag: snippetBlock.data.tag,
+//       },
+//     };
+//   }
+//   let updatedString = updatedSnippetBlock.data.text;
+//   let outdatedCodeTag = snippetBlock.data.tag;
+//   let updatedLineStart = updatedSnippetBlock.data["line_start"];
+
+//   let i = 0,
+//     k = 0;
+//   let updatedCodeTagArray = [];
+//   let newCodeTag = [];
+//   outdatedCodeTag = outdatedCodeTag.split("");
+//   updatedString = updatedString.split("");
+//   let updatedStartPos = null;
+
+//   while (i < updatedString.length) {
+//     if (
+//       updatedString[i] == outdatedCodeTag[k] &&
+//       isAlphanumeric(updatedString[i])
+//     ) {
+//       if (updatedStartPos == null) {
+//         updatedStartPos = i;
+//       }
+//       newCodeTag += updatedString[i];
+//       i++;
+//       k++;
+//     } else if (
+//       updatedString[i] != outdatedCodeTag[k] &&
+//       isAlphanumeric(updatedString[i])
+//     ) {
+//       if (updatedStartPos == null) {
+//         updatedStartPos = i;
+//       }
+//       newCodeTag += updatedString[i];
+//       i++;
+//     } else {
+//       let matchPercentage = calculateTagMatchPer(
+//         outdatedCodeTag.join(""),
+//         newCodeTag
+//       );
+//       if (matchPercentage >= 50) {
+//         updatedCodeTagArray.push({
+//           updatedCodeTag: newCodeTag,
+//           matchPercentage: matchPercentage,
+//         });
+//         newCodeTag = [];
+//         updatedStartPos = null;
+//         i++;
+//         k = 0;
+//         continue;
+//       }
+//       newCodeTag = [];
+//       updatedStartPos = null;
+//       i++;
+//       k = 0;
+//     }
+//   }
+//   if (updatedCodeTagArray.length > 0) {
+//     updatedCodeTagArray.sort((a, b) => b.matchPercentage - a.matchPercentage);
+//     return {
+//       id: snippetBlock.id,
+//       type: snippetBlock.type,
+//       outdated: snippetBlock["outdated"],
+//       obsolete: false,
+//       data: {
+//         text: updatedString.join(""),
+//         path: snippetBlock.data.path,
+//         line_start: updatedLineStart,
+//         line_end: updatedLineStart,
+//         tag: updatedCodeTagArray[0].updatedCodeTag,
+//       },
+//     };
+//   } else {
+//     return {
+//       id: snippetBlock.id,
+//       type: snippetBlock.type,
+//       outdated: snippetBlock["outdated"],
+//       obsolete: true,
+//       data: {
+//         text: snippetBlock.data.text,
+//         path: snippetBlock.data.path,
+//         line_start: snippetBlock.data["line_start"],
+//         line_end: snippetBlock.data["line_end"],
+//         tag: snippetBlock.data.tag,
+//       },
+//     };
+//   }
+// }
 // function processCodeTag(bestMatchArray, snippetBlock) {
 //   let updatedCodeTagArray = [];
 //   let outdatedCodeTag = snippetBlock.data["tag"].split("");

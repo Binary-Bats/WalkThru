@@ -110,6 +110,7 @@ const TokenView: React.FC<FilePathProps> = ({ item: initialItem }) => {
     }, [initialItem]);
 
 
+
     useEffect(() => {
 
         if (!listening) return;
@@ -118,8 +119,8 @@ const TokenView: React.FC<FilePathProps> = ({ item: initialItem }) => {
             const message = event.data;
 
             if (message.command === 'updatedBlock') {
-                console.log("updatedBlock", message.data)
 
+                console.log("Message Data after", message.data)
                 handleUpdate(message.data, message.command)
 
                 setListening(false);
@@ -142,9 +143,13 @@ const TokenView: React.FC<FilePathProps> = ({ item: initialItem }) => {
                 handleUpdate(newItem, message.command)
                 setListening(false);
             }
-            if (message.command === 'blockState') {
+            if (message.command === 'prevCode') {
                 console.log("blockState", message.data)
-                setPreviewItem(message.data.state)
+                if (message.data.state.id === item.id) {
+
+                    setPreviewItem(message.data.state)
+                }
+
             }
         };
 
@@ -210,7 +215,7 @@ const TokenView: React.FC<FilePathProps> = ({ item: initialItem }) => {
             tag: item.data.tag,
             range: item.data.range
         })
-        console.log(item, "???????????????????????????????")
+
 
         dispatch(updateDocBlocks(blocks))
 
@@ -250,7 +255,7 @@ const TokenView: React.FC<FilePathProps> = ({ item: initialItem }) => {
         <div className='mb-5'>
             {isSearchModelOpen ? <TokenModel id={item.id} handleClose={() => setIsSearchModelOpen(false)} /> : null}
 
-            <div className="relative inline-block w-[100%]">
+            <div className="relative  inline-block w-[100%]">
                 {/* Hover Modal */}
                 {isHovered && (
                     <div onMouseLeave={(e) => {
@@ -258,7 +263,7 @@ const TokenView: React.FC<FilePathProps> = ({ item: initialItem }) => {
                         if (!relatedTarget?.closest('.hover-modal-container')) {
                             setIsHovered(false);
                         }
-                    }} className="hover-modal-container text-white absolute bottom-full left-0 mb-2 w-full z-50">
+                    }} className="hover-modal-container  text-white absolute bottom-full left-0 mb-2 w-full z-[2000]">
                         {/* Invisible bridge to maintain hover */}
                         <div className="absolute w-full h-2 bottom-[-8px]" />
 
@@ -267,7 +272,7 @@ const TokenView: React.FC<FilePathProps> = ({ item: initialItem }) => {
                                 <div className="flex w-full rounded-xl px-4 py-3 bg-[#351F27] justify-between" style={headerStyle}>
                                     <div className=" rounded-md flex items-center gap-2">
 
-                                        <span><Path path={item.data.path} type={item.type} startLine={item.data.line_start} endLine={item.data.line_end}>
+                                        <span className='flex gap-2 items-center'><FileIcon className="w-4 h-4" size={16} /><Path path={item.data.path} type={item.type} startLine={item.data.line_start} endLine={item.data.line_end}>
                                             {item.data.path}
                                         </Path> </span>
                                     </div>
@@ -303,7 +308,7 @@ const TokenView: React.FC<FilePathProps> = ({ item: initialItem }) => {
                                     <div className="flex gap-3">
 
                                         <button onClick={() => {
-                                            console.log("Update snippet--------", item)
+
                                             sendMessage("update", item)
                                         }} className="px-2 py-[2px] rounded-md bg-blue-600 text-white hover:bg-blue-700 transition-colors duration-200">
                                             Update
@@ -375,7 +380,7 @@ const TokenView: React.FC<FilePathProps> = ({ item: initialItem }) => {
 
                     </div>
                     {item.outdated ? <span className="ml-auto  " onClick={() => {
-                        console.log("Update snippet--------", item)
+
                         sendMessage("update", item)
                     }}> <RefreshCw className="w-4 h-4 text-[#FFB284] cursor-pointer hover:rotate-45" size={16} /></span> : item.obsolete ? <span className="ml-auto text-[#ff5c5c] "> <CircleSlash className='w-4 h-4' size={16} /> </span> : <span className="ml-auto text-[#3fab53] ">{item.updated ? <span><Check className="w-4 h-4" size={16} /></span> : <CheckCheck className="w-4 h-4" size={16} />}</span>}
                 </div>

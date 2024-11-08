@@ -106,6 +106,7 @@ export default class MyPanel {
           case "update":
             if (message.data?.id) {
               if (!this.blockStates.get(message.data.id)) {
+                console.log("writting", message.data.id);
                 this.blockStates.set(message.data.id, {
                   id: message.data.id,
                   content: message.data,
@@ -129,8 +130,13 @@ export default class MyPanel {
           case "getBlockState":
             if (message.data?.id) {
               const state = this.blockStates.get(message.data.id);
+              console.log(
+                state,
+                this.blockStates.keys(),
+                "state|||||||||||||||||||||||"
+              );
               if (state) {
-                this.sendMsgToWebview("blockState", {
+                this.sendMsgToWebview("prevCode", {
                   id: message.data.id,
                   state: state.content,
                 });

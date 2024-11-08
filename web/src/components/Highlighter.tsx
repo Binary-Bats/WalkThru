@@ -143,7 +143,7 @@ export default function Highlighter({ item: initialItem }: HighlighterProps) {
                 handleUpdate(newItem, message.command)
                 setListening(false);
             }
-            if (message.command === 'blockState') {
+            if (message.command === 'prevCode') {
                 handlePrevious(message.data.state)
             }
             // if (message.command === 'prevCode') {

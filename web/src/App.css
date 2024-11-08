@@ -1,0 +1,138 @@
+/* From Uiverse.io by boryanakrasteva - Modified with smaller size */
+@-webkit-keyframes honeycomb {
+  0%,
+  20%,
+  80%,
+  100% {
+    opacity: 0;
+    -webkit-transform: scale(0);
+    transform: scale(0);
+  }
+  30%,
+  70% {
+    opacity: 1;
+    -webkit-transform: scale(1);
+    transform: scale(1);
+  }
+}
+
+@keyframes honeycomb {
+  0%,
+  20%,
+  80%,
+  100% {
+    opacity: 0;
+    -webkit-transform: scale(0);
+    transform: scale(0);
+  }
+  30%,
+  70% {
+    opacity: 1;
+    -webkit-transform: scale(1);
+    transform: scale(1);
+  }
+}
+
+.honeycomb {
+  height: 16px;
+  position: relative;
+  width: 16px;
+}
+
+.honeycomb div {
+  -webkit-animation: honeycomb 1s infinite backwards;
+  animation: honeycomb 1s infinite backwards;
+  height: 8px;
+  margin-top: 4px;
+  position: absolute;
+  width: 16px;
+}
+
+.honeycomb div:after,
+.honeycomb div:before {
+  content: "";
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  position: absolute;
+  left: 0;
+  right: 0;
+}
+
+/* Even numbered hexagons - White */
+.honeycomb div:nth-child(even) {
+  background: #ffffff;
+}
+
+.honeycomb div:nth-child(even):after {
+  top: -4px;
+  border-bottom: 4px solid #ffffff;
+}
+
+.honeycomb div:nth-child(even):before {
+  bottom: -4px;
+  border-top: 4px solid #ffffff;
+}
+
+/* Odd numbered hexagons - Blue */
+.honeycomb div:nth-child(odd) {
+  background: #ffffff;
+}
+
+.honeycomb div:nth-child(odd):after {
+  top: -4px;
+  border-bottom: 4px solid #ffffff;
+}
+
+.honeycomb div:nth-child(odd):before {
+  bottom: -4px;
+  border-top: 4px solid #ffffff;
+}
+
+.honeycomb div:nth-child(1) {
+  -webkit-animation-delay: 0s;
+  animation-delay: 0s;
+  left: -18px;
+  top: 0;
+}
+
+.honeycomb div:nth-child(2) {
+  -webkit-animation-delay: 0.05s;
+  animation-delay: 0.05s;
+  left: -9px;
+  top: 14px;
+}
+
+.honeycomb div:nth-child(3) {
+  -webkit-animation-delay: 0.1s;
+  animation-delay: 0.1s;
+  left: 9px;
+  top: 14px;
+}
+
+.honeycomb div:nth-child(4) {
+  -webkit-animation-delay: 0.15s;
+  animation-delay: 0.15s;
+  left: 18px;
+  top: 0;
+}
+
+.honeycomb div:nth-child(5) {
+  -webkit-animation-delay: 0.2s;
+  animation-delay: 0.2s;
+  left: 9px;
+  top: -14px;
+}
+
+.honeycomb div:nth-child(6) {
+  -webkit-animation-delay: 0.25s;
+  animation-delay: 0.25s;
+  left: -9px;
+  top: -14px;
+}
+
+.honeycomb div:nth-child(7) {
+  -webkit-animation-delay: 0.3s;
+  animation-delay: 0.3s;
+  left: 0;
+  top: 0;
+}
